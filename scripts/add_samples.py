@@ -2,11 +2,8 @@ import sys
 from segments import SegmentsClient
 import json
 
-api_key = sys.argv[1]
-client = SegmentsClient(api_key)
-
+# Dataset configuration: name, sequence, image s3 urls and image frame config
 dataset = "GreatAlexander/Test_AV_Images"
-
 name = "sequence_1"
 
 image_urls = [
@@ -87,4 +84,7 @@ frames = [
 
 attributes = {"frames": frames}
 
+# Setup segments.ai client up using your API key
+api_key = sys.argv[1]
+client = SegmentsClient(api_key)
 sample = client.add_sample(dataset, name, attributes)
