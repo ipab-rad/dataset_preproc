@@ -22,8 +22,8 @@ Example `exporter_config.yaml` file in ros2_bag_exporter pkg
 
 ### Upload data sequence to segments.ai
 
-`python3 ./scripts/add_samples.py YOUR_API_KEY`
+`python3 ./scripts/upload.py YOUR_API_KEY`
 
 ### Add uploaded assets to samples (For an existing dataset)
 
-`python3 ./scripts/upload.py YOUR_API_KEY`
+`python3 ./scripts/add_samples.py YOUR_API_KEY`
