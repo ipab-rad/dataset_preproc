@@ -87,7 +87,6 @@ RUN apt-get update \
 
 ENV EXPORTER=/opt/ros_ws/src/ros2_bag_exporter
 RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
-    && git -C $EXPORTER checkout temp_fix \
     && . /opt/ros/"$ROS_DISTRO"/setup.sh \
     && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -rf /opt/ros_ws/build $EXPORTER
