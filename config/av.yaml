@@ -17,6 +17,36 @@ topics:
 
   # Configuration for the RGB image topic
   - name: "/sensor/camera/fsp_l/image_rect_color/compressed"  # 20Hz
-    type: "Image"
+    type: "CompressedImage"
     encoding: "rgb8"
-    sample_interval: 2                                        # 10Hz
+    sample_interval: 1                                        # 10Hz
+
+  # Configuration for the RGB image topic
+  - name: "/sensor/camera/rsp_l/image_rect_color/compressed"  # 20Hz
+    type: "CompressedImage"
+    encoding: "rgb8"
+    sample_interval: 1                                        # 10Hz
+
+  # Configuration for the RGB image topic
+  - name: "/sensor/camera/lspf_r/image_rect_color/compressed"  # 20Hz
+    type: "CompressedImage"
+    encoding: "rgb8"
+    sample_interval: 1                                        # 10Hz
+
+  # Configuration for the RGB image topic
+  - name: "/sensor/camera/lspr_l/image_rect_color/compressed"  # 20Hz
+    type: "CompressedImage"
+    encoding: "rgb8"
+    sample_interval: 1                                        # 10Hz
+
+  # Configuration for the RGB image topic
+  - name: "/sensor/camera/rspf_l/image_rect_color/compressed"  # 20Hz
+    type: "CompressedImage"
+    encoding: "rgb8"
+    sample_interval: 1                                        # 10Hz
+
+  # Configuration for the RGB image topic
+  - name: "/sensor/camera/rspr_r/image_rect_color/compressed"  # 20Hz
+    type: "CompressedImage"
+    encoding: "rgb8"
+    sample_interval: 1                                        # 10Hz
