@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys
 import os
 from segments import SegmentsClient
@@ -6,12 +8,17 @@ import json
 # Dataset configuration: name, path to data, and log to keep track of uploads
 dataset = "test_av_1"
 # dataset_path = "/opt/ros_ws/output/sensor/lidar/top/points/sensor/lidar/top/points"
-dataset_path = "/opt/ros_ws/output/sensor/camera/fsp_l/image_rect_color/compressed/sensor/camera/fsp_l/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/fsp_l/image_rect_color/compressed/sensor/camera/fsp_l/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/rsp_l/image_rect_color/compressed/sensor/camera/rsp_l/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/lspf_r/image_rect_color/compressed/sensor/camera/lspf_r/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/lspr_l/image_rect_color/compressed/sensor/camera/lspr_l/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/rspf_l/image_rect_color/compressed/sensor/camera/rspf_l/image_rect_color/compressed"
+# dataset_path = "/opt/ros_ws/output/sensor/camera/rspr_r/image_rect_color/compressed/sensor/camera/rspr_r/image_rect_color/compressed"
 
 log_file = open("/opt/ros_ws/output/" + dataset + ".txt", "a")
 
 file_upload_id = 0
-max_file_upload = 10
+max_file_upload = 100
 
 # Setup segments.ai client up using your API key
 api_key = sys.argv[1]

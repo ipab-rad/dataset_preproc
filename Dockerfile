@@ -32,7 +32,7 @@ RUN apt-get update \
         ros-"$ROS_DISTRO"-velodyne-msgs \
         python3-pip \
         python3-vcstool \
-    && pip install --no-cache-dir mcap colorama segments-ai \
+    && pip install --no-cache-dir mcap pandas colorama segments-ai \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup ROS workspace folder
