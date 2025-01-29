@@ -2,9 +2,10 @@ import sys
 import copy
 from segments import SegmentsClient
 import json
+import pandas as pd
 
 dataset = "GreatAlexander/Test_3D_1"
-name = "sequence_1"
+name = "sequence_4"
 
 pcd_urls = [
     "https://segmentsai-prod.s3.eu-west-2.amazonaws.com/assets/GreatAlexander/cbf35f19-5871-40ab-9fb1-6458bef82234.pcd",
@@ -46,20 +47,23 @@ timestamps = [
     "1731680321028372992",
 ]
 
-# Hard-coded ego-positions for testing purposes. Later they will come from EKF
-# 8.4m/s at 100ms dt
-ego_x = [
-    "0.0",
-    "0.84",
-    "1.68",
-    "2.52",
-    "3.36",
-    "4.2",
-    "5.04",
-    "5.88",
-    "6.72",
-    "7.56",
-]
+# Load the TUM trajectory file
+file_path = '/home/hector/rosbags/2024_11_15-14_05_41_meadows_new_antennas_galileo_44_trajectory.tum'
+columns = ['timestamp', 'x', 'y', 'z', 'qx', 'qy', 'qz', 'qw']
+
+# Read text file 
+df = pd.read_csv(file_path, delim_whitespace=True, header=None, names=columns)
+
+# Store the data into separate lists
+ego_timestamp = df['timestamp'].tolist()
+ego_x = df['x'].tolist()
+ego_y = df['y'].tolist()
+ego_z = df['z'].tolist()
+ego_qx = df['qx'].tolist()
+ego_qy = df['qy'].tolist()
+ego_qz = df['qz'].tolist()
+ego_qw = df['qw'].tolist()
+
 
 # Pointcloud dictionary structure
 pcd_struct = {
@@ -82,7 +86,7 @@ pcd_struct = {
         },
     },
     "default_z": "-1.78",  # Top lidar height from ground level
-    "name": names[0],
+    "name": "test",
     "timestamp": timestamps[0],
 }
 
@@ -120,10 +124,17 @@ frames = []
 
 # Build one "pcd" (pointcloud sample) at a time using structs and modifying them
 # Note: A *lot* of this could/should be done with list/dictionary comprehension
-for f in range(0, 10):
+key_frames_n = len(pcd_urls)
+for f in range(0, key_frames_n):
     pcd = pcd_struct
     pcd["pcd"]["url"] = pcd_urls[f]
     pcd["ego_pose"]["position"]["x"] = ego_x[f]
+    pcd["ego_pose"]["position"]["y"] = ego_y[f]
+    pcd["ego_pose"]["position"]["z"] = ego_z[f]
+    pcd["ego_pose"]["heading"]["qx"] = ego_qx[f]
+    pcd["ego_pose"]["heading"]["qy"] = ego_qy[f]
+    pcd["ego_pose"]["heading"]["qz"] = ego_qz[f]
+    pcd["ego_pose"]["heading"]["qw"] = ego_qw[f]
     pcd["name"] = "frame_" + str(f)
     pcd["timestamp"] = timestamps[f]
     pcd["images"] = [fsp_l_struct]
