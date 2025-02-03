@@ -91,6 +91,10 @@ RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
     && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -rf /opt/ros_ws/build $EXPORTER
 
+# Give read/write permissions to the user on the ROS_WS directory
+RUN chown -R $USERNAME:$USERNAME $ROS_WS && \
+    chmod -R 775 $ROS_WS   
+
 # -----------------------------------------------------------------------
 
 FROM base AS prebuilt
@@ -100,9 +104,6 @@ FROM base AS prebuilt
 # -----------------------------------------------------------------------
 
 FROM prebuilt AS dev
-
-# Copy artifacts/binaries from base
-COPY --from=base $ROS_WS/install $ROS_WS/install
 
 # Add command to docker entrypoint to source newly compiled
 #   code when running docker container

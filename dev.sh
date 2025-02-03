@@ -83,7 +83,7 @@ fi
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
-    --build-arg USERNAME=$(whoami) \
+    --build-arg USERNAME=dataset_preproc \
     -t dataset_preproc:latest-dev \
     -f Dockerfile --target dev .
 
