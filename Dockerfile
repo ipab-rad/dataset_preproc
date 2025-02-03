@@ -86,7 +86,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV EXPORTER=/opt/ros_ws/src/ros2_bag_exporter
-RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
+RUN git clone -b add-timestamp-sync-meta \
+    https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
     && . /opt/ros/"$ROS_DISTRO"/setup.sh \
     && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -rf /opt/ros_ws/build $EXPORTER
