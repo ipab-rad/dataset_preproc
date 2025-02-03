@@ -139,15 +139,19 @@ pcd_path = "/opt/ros_ws/output/Test_3D_3_lidar.txt"
 columns = ['url']
 
 # Read text file
-pcd_file = pd.read_csv(pcd_path, delim_whitespace=True, header=None, names=columns)
+pcd_file = pd.read_csv(
+    pcd_path, delim_whitespace=True, header=None, names=columns
+)
 
 pcd_urls = pcd_file['url'].tolist()
+
 
 def getSamplePCD(i):
     sample = pcd_struct
     sample["pcd"]["url"] = pcd_urls[i]
     return sample
 
+
 def getTimestamp(i):
-    # TODO: Add logic to get timestamp from somewhere. Lidar pointcloud? 
+    # TODO: Add logic to get timestamp from somewhere. Lidar pointcloud?
     return timestamps[i]

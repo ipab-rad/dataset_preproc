@@ -21,8 +21,14 @@ ego_qy = df['qy'].tolist()
 ego_qz = df['qz'].tolist()
 ego_qw = df['qw'].tolist()
 
+
 def getEgoPose(i):
     ego_pose = dict()
     ego_pose["position"] = {"x": ego_x[i], "y": ego_y[i], "z": ego_z[i]}
-    ego_pose["heading"] = {"qx": ego_qx[i], "qy": ego_qy[i], "qz": ego_qz[i], "qw": ego_qw[i]}
+    ego_pose["heading"] = {
+        "qx": ego_qx[i],
+        "qy": ego_qy[i],
+        "qz": ego_qz[i],
+        "qw": ego_qw[i],
+    }
     return ego_pose

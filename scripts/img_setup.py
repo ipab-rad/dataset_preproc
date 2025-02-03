@@ -195,12 +195,24 @@ rspr_r_path = "/opt/ros_ws/output/Test_3D_3_rspr_r.txt"
 columns = ['url']
 
 # Read text file
-fsp_l_file = pd.read_csv(fsp_l_path, delim_whitespace=True, header=None, names=columns)
-rsp_l_file = pd.read_csv(rsp_l_path, delim_whitespace=True, header=None, names=columns)
-lspf_r_file = pd.read_csv(lspf_r_path, delim_whitespace=True, header=None, names=columns)
-lspr_l_file = pd.read_csv(lspr_l_path, delim_whitespace=True, header=None, names=columns)
-rspf_l_file = pd.read_csv(rspf_l_path, delim_whitespace=True, header=None, names=columns)
-rspr_r_file = pd.read_csv(rspr_r_path, delim_whitespace=True, header=None, names=columns)
+fsp_l_file = pd.read_csv(
+    fsp_l_path, delim_whitespace=True, header=None, names=columns
+)
+rsp_l_file = pd.read_csv(
+    rsp_l_path, delim_whitespace=True, header=None, names=columns
+)
+lspf_r_file = pd.read_csv(
+    lspf_r_path, delim_whitespace=True, header=None, names=columns
+)
+lspr_l_file = pd.read_csv(
+    lspr_l_path, delim_whitespace=True, header=None, names=columns
+)
+rspf_l_file = pd.read_csv(
+    rspf_l_path, delim_whitespace=True, header=None, names=columns
+)
+rspr_r_file = pd.read_csv(
+    rspr_r_path, delim_whitespace=True, header=None, names=columns
+)
 
 
 fsp_l_urls = fsp_l_file['url'].tolist()
@@ -210,9 +222,17 @@ lspr_l_urls = lspr_l_file['url'].tolist()
 rspf_l_urls = rspf_l_file['url'].tolist()
 rspr_r_urls = rspr_r_file['url'].tolist()
 
+
 def getImages(i):
     sample = dict()
-    sample["images"] = [fsp_l_struct, rsp_l_struct, lspf_r_struct, lspr_l_struct, rspf_l_struct, rspr_r_struct]
+    sample["images"] = [
+        fsp_l_struct,
+        rsp_l_struct,
+        lspf_r_struct,
+        lspr_l_struct,
+        rspf_l_struct,
+        rspr_r_struct,
+    ]
     sample["images"][0]["url"] = fsp_l_urls[i]
     sample["images"][1]["url"] = rsp_l_urls[i]
     sample["images"][2]["url"] = lspf_r_urls[i]
