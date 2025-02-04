@@ -20,7 +20,7 @@ topics:
   - name: "/sensor/camera/fsp_l/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
     sample_interval: 1                                        # 10Hz
-    topic_dir: "camera/fsp_l"                               
+    topic_dir: "camera/fsp_l"
 
   - name: "/sensor/camera/rsp_l/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"

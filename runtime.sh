@@ -77,11 +77,15 @@ if [ ! -d "$ROSBAGS_DIR" -a "$CHECK_PATH" = true ]; then
     exit 1
 fi
 
+# Verify SEGMENTS_API_KEY is set
+[ -z "$SEGMENTS_API_KEY" ] && echo "SEGMENTS_API_KEY is not set" && exit 1
+
 # Build docker image only up to runtime stage
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
     --build-arg USERNAME=dataset_preproc \
+    --build-arg SEGMENTS_API_KEY=$SEGMENTS_API_KEY \
     -t dataset_preproc:latest \
     -f Dockerfile --target runtime .
 
