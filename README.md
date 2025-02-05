@@ -4,7 +4,7 @@ Dataset pre-processing: consume mcap bags to produce annotation compatible data
 
 ## Usage Guide
 
-You will need your segments.ai API key to upload/create datasets. Save it as an environment variable `SEGMENTS_API_KEY`
+You will need your segments.ai API key to upload/create datasets. Save it as an environment variable `SEGMENTS_API_KEY` in your host machine.
 
 ### Build and Run the Docker Container Interactively
 
@@ -49,19 +49,21 @@ To upload the extracted data sequence:
 python3 ./scripts/upload.py <rosbag_output_dir>
 ```
 
-After the upload, you should see an `upload_metadata.json` inside `<rosbag_output_dir>`.
+After the upload, you should see an `upload_metadata.json` file inside `<rosbag_output_dir>`.
 
 ### Add a 3D Sample to Segment.ai
 
-1. Create a dataset if you haven't already.
-2. Modify the `dataset` variable inside [add_3d_samples.py](./scripts/add_3d_samples.py) to match your dataset's name.
-3. Modify `seq_name` with your desired sequence name.
-   - Ensure the sequence name is unique within your dataset; otherwise, this script will override it.
+Create a dataset if you haven't already and extract its name.
 
 Run the script:
 
 ```bash
-python3 ./scripts/add_3d_samples.py <rosbag_output_dir>
+python3 ./scripts/add_3d_samples.py <my_dataset_name> <sequence_name> <rosbag_output_dir>
 ```
+Where:
+- `<my_dataset_name>`: Segment.ai's dataset name
+- `<sequence_name>`: Desired sequence name for the 3D sample
+    - Ensure the sequence name is unique within your dataset; otherwise, this script will override it.
+- `<rosbag_output_dir>`: Directory with the extracted rosbags and metadata files
 
 If successful, you will see your new segment inside your dataset.

@@ -10,11 +10,6 @@ from segments import SegmentsClient
 
 import pcd_setup, ego_setup, img_setup
 
-# FIXME: Parametrise this in some way
-dataset = 'UniversityofEdinburgh/Edinburgh_3D_Test'
-seq_name = "sequence_1"
-
-
 # Get Segment API key from env variable
 api_key = os.getenv('SEGMENTS_API_KEY')
 if not api_key:
@@ -28,15 +23,43 @@ if not api_key:
 client = SegmentsClient(api_key)
 
 # Ensure command-line argument is provided
-if len(sys.argv) < 2:
+if len(sys.argv) < 4:
     print(
         'ERROR: Please provide the local data directory as an argument.',
         file=sys.stderr,
     )
     sys.exit(1)
 
+# Get dataset name and verify it exists
+dataset_name = sys.argv[1]
+
+try:
+    dataset_meta = client.get_dataset(dataset_name)
+except exceptions.ValidationError:
+    print(
+        f'ERROR: Failed to validate \'{dataset_name}\' dataset',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+except exceptions.APILimitError:
+    print(f'ERROR: API limit exceeded', file=sys.stderr)
+    sys.exit(1)
+except exceptions.NotFoundError:
+    print(
+        f'ERROR: Dataset \'{dataset_name}\' does not exist\n'
+        f'       Please provide an existent dataset ',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+except exceptions.TimeoutError:
+    print(f'ERROR: Request times out. Try again later', file=sys.stderr)
+    sys.exit(1)
+
+# Get sequence name
+seq_name = sys.argv[2]
+
 # Verify provided data directory
-local_data_directory = Path(sys.argv[1])
+local_data_directory = Path(sys.argv[3])
 if not local_data_directory.exists():
     print(
         f'ERROR: Provided directory \'{local_data_directory}\' does not exist.',
@@ -120,4 +143,4 @@ with samples_json_file.open('w') as outfile:
 
 # Upload sequence sample
 attributes = {"frames": frames}
-sample = client.add_sample(dataset, seq_name, attributes)
+sample = client.add_sample(dataset_name, seq_name, attributes)

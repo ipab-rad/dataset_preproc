@@ -47,14 +47,25 @@ def run_mola_lidar_odometry(rosbag_path, output_dir):
 
     # Run the command
     try:
+        print(f'\U000023F3 Running ...\n')
         result = subprocess.run(
-            cmd, shell=True, check=True, text=True, capture_output=True
+            cmd,
+            shell=True,
+            check=True,
+            text=True,
+            capture_output=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
-        print("Output:\n", result.stdout)
+        print(f'\U0001F4BE Trajectory filed saved as: {output_tum_path}\n')
         if result.stderr:
             print("Error:\n", result.stderr)
     except subprocess.CalledProcessError as e:
-        print("Command failed with error:\n", e.stderr, file=sys.stderr)
+        print(
+            "\U0000274C Command failed with error:\n",
+            e.stderr,
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 

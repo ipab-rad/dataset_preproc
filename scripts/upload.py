@@ -115,7 +115,7 @@ def show_progress_bar(progress, total, bar_length=50):
 
 
 # Ensure we don't easily overwrite a previous generated file
-upload_metadata_file = local_data_directory / 'test_upload_metadata.json'
+upload_metadata_file = local_data_directory / 'upload_metadata.json'
 if upload_metadata_file.exists():
     print(
         'WARN: \'upload_metadata.json\' already exists. '
