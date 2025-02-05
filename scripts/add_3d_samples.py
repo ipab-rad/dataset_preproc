@@ -6,7 +6,7 @@ import yaml
 import json
 import os
 from pathlib import Path
-from segments import SegmentsClient
+from segments import SegmentsClient, exceptions
 
 import pcd_setup, ego_setup, img_setup
 
@@ -35,24 +35,29 @@ dataset_name = sys.argv[1]
 
 try:
     dataset_meta = client.get_dataset(dataset_name)
-except exceptions.ValidationError:
+except exceptions.ValidationError as e:
     print(
-        f'ERROR: Failed to validate \'{dataset_name}\' dataset',
+        f'ERROR: Failed to validate \'{dataset_name}\' dataset'
+        f'\n{str(e)}\n',
         file=sys.stderr,
     )
     sys.exit(1)
-except exceptions.APILimitError:
-    print(f'ERROR: API limit exceeded', file=sys.stderr)
+except exceptions.APILimitError as e:
+    print(f'ERROR: API limit exceeded\n{str(e)}\n', file=sys.stderr)
     sys.exit(1)
-except exceptions.NotFoundError:
+except exceptions.NotFoundError as e:
     print(
         f'ERROR: Dataset \'{dataset_name}\' does not exist\n'
-        f'       Please provide an existent dataset ',
+        f'       Please provide an existent dataset '
+        f'\n{str(e)}\n',
         file=sys.stderr,
     )
     sys.exit(1)
-except exceptions.TimeoutError:
-    print(f'ERROR: Request times out. Try again later', file=sys.stderr)
+except exceptions.TimeoutError as e:
+    print(
+        f'ERROR: Request times out. Try again later\n{str(e)}\n',
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 # Get sequence name
@@ -96,8 +101,6 @@ tum_files = list(local_data_directory.glob('*.tum'))
 if not tum_files:
     print(f'ERROR: Trajectory file (.tum ) not found.', file=sys.stderr)
 
-print(f'Trajectory file found {tum_files[0]}')
-
 # Initialise ego_poses based on .tum file
 ego_poses = ego_setup.EgoPoses(tum_files[0])
 
@@ -105,6 +108,7 @@ sync_key_frames = export_metadata_yaml.get('time_sync_groups', [])
 
 frames = []
 
+print('Extacting key frames ...')
 # Iterate over synchronised key frames (1 x Lidar + 6 x Cameras)
 for idx, sync_key_frame in enumerate(sync_key_frames):
     sample = pcd_setup.pcd_struct
@@ -142,5 +146,35 @@ with samples_json_file.open('w') as outfile:
     json.dump(frames, outfile, indent=4)
 
 # Upload sequence sample
+print('Uploading sample ...')
 attributes = {"frames": frames}
-sample = client.add_sample(dataset_name, seq_name, attributes)
+try:
+    print()
+    sample = client.add_sample(dataset_name, seq_name, attributes)
+except exceptions.ValidationError as e:
+    print(
+        f'ERROR: Failed to validate sample\n{str(e)}\n',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+except exceptions.APILimitError as e:
+    print(f'ERROR: API limit exceeded\n{str(e)}\n', file=sys.stderr)
+    sys.exit(1)
+except exceptions.NotFoundError as e:
+    print(
+        f'ERROR: Dataset \'{dataset_name}\' does not exist\n'
+        f'       Please provide an existent dataset\n{str(e)}\n ',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+except exceptions.NetworkError as e:
+    print(
+        f'ERROR: Request is not valid or the server experienced an error\n{str(e)}\n',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+except exceptions.TimeoutError as e:
+    print(f'ERROR: Request times out. \n{str(e)}', file=sys.stderr)
+    sys.exit(1)
+
+print('Done \U00002714')
