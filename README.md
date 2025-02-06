@@ -63,7 +63,7 @@ python3 ./scripts/add_3d_samples.py <my_dataset_name> <sequence_name> <rosbag_ou
 Where:
 - `<my_dataset_name>`: Segment.ai's dataset name
 - `<sequence_name>`: Desired sequence name for the 3D sample
-    - Ensure the sequence name is unique within your dataset; otherwise, this script will override it.
+    - Ensure the sequence name is unique within your dataset; otherwise, the sample will not be uploaded
 - `<rosbag_output_dir>`: Directory with the extracted rosbags and metadata files
 
 If successful, you will see your new segment inside your dataset.
