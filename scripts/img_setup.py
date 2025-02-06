@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# FIXME: Create all these structs from a file!
+# FIXME: Create all these structs from a file (see #3)
 
 # Front camera dictionary structure
 fsp_l_struct = {
