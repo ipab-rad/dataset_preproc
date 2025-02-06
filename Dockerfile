@@ -1,5 +1,7 @@
 FROM ros:humble-ros-base-jammy AS base
 
+# FIXME: Use the fastest apt mirror (see #4)
+
 # Install key dependencies
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive \

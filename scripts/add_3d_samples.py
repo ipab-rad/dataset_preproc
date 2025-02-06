@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from segments import SegmentsClient, exceptions
 
-import pcd_setup, ego_setup, img_setup
+import ego_setup, img_setup, pcd_setup
 
 # Get Segment API key from env variable
 api_key = os.getenv('SEGMENTS_API_KEY')
@@ -120,7 +120,7 @@ for idx, sync_key_frame in enumerate(sync_key_frames):
 
     # Set frame timestamp
     total_nanosec = (
-        sync_key_frame['stamp']['sec'] * 1000000000
+        sync_key_frame['stamp']['sec'] * (10**9)
         + sync_key_frame['stamp']['nanosec']
     )
     sample['timestamp'] = str(total_nanosec)

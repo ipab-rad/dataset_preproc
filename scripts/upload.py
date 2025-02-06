@@ -84,12 +84,6 @@ def upload_file(local_file_path: Path, label: str):
 
     with local_file_path.open('rb') as f:
         asset = client.upload_asset(f, label)
-
-        # For Debugging
-        # asset = typing.File
-        # asset.url = f's3://mocked_url/{local_file_path.name}'
-        # asset.uuid = f'321546547'
-
         return asset
 
 
