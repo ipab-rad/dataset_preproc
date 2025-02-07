@@ -79,11 +79,15 @@ if [ "$headless" = "false" ]; then
     xhost + >/dev/null
 fi
 
+# Verify SEGMENTS_API_KEY is set
+[ -z "$SEGMENTS_API_KEY" ] && echo "SEGMENTS_API_KEY is not set" && exit 1
+
 # Build docker image up to dev stage
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
-    --build-arg USERNAME=$(whoami) \
+    --build-arg USERNAME=dataset_preproc \
+    --build-arg SEGMENTS_API_KEY=$SEGMENTS_API_KEY \
     -t dataset_preproc:latest-dev \
     -f Dockerfile --target dev .
 

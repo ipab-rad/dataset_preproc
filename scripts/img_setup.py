@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
-import warnings  # To ignore FutureWarning from pandas
-
-warnings.simplefilter(action='ignore', category=FutureWarning)
-import pandas as pd
+# FIXME: Create all these structs from a file (see #3)
 
 # Front camera dictionary structure
 fsp_l_struct = {
@@ -185,38 +182,49 @@ rspr_r_struct = {
     "name": "camera_rspr_r",
 }
 
-# Load the TUM trajectory file
-fsp_l_path = "/opt/ros_ws/output/Test_3D_3_fsp_l.txt"
-rsp_l_path = "/opt/ros_ws/output/Test_3D_3_rsp_l.txt"
-lspf_r_path = "/opt/ros_ws/output/Test_3D_3_lspf_r.txt"
-lspr_l_path = "/opt/ros_ws/output/Test_3D_3_lspr_l.txt"
-rspf_l_path = "/opt/ros_ws/output/Test_3D_3_rspf_l.txt"
-rspr_r_path = "/opt/ros_ws/output/Test_3D_3_rspr_r.txt"
-columns = ['url']
 
-# Read text file
-fsp_l_file = pd.read_csv(fsp_l_path, delim_whitespace=True, header=None, names=columns)
-rsp_l_file = pd.read_csv(rsp_l_path, delim_whitespace=True, header=None, names=columns)
-lspf_r_file = pd.read_csv(lspf_r_path, delim_whitespace=True, header=None, names=columns)
-lspr_l_file = pd.read_csv(lspr_l_path, delim_whitespace=True, header=None, names=columns)
-rspf_l_file = pd.read_csv(rspf_l_path, delim_whitespace=True, header=None, names=columns)
-rspr_r_file = pd.read_csv(rspr_r_path, delim_whitespace=True, header=None, names=columns)
+def getCamURL(camera_name, cameras_list, assets_meta):
+
+    cam_id = None
+    for camera in cameras_list:
+        if camera['name'] == camera_name:
+            cam_id = camera['global_id']
+
+    if cam_id is None:
+        return 'S3 url not found!'
+
+    return assets_meta['assets_ids'][str(cam_id)]['s3_url']
 
 
-fsp_l_urls = fsp_l_file['url'].tolist()
-rsp_l_urls = rsp_l_file['url'].tolist()
-lspf_r_urls = lspf_r_file['url'].tolist()
-lspr_l_urls = lspr_l_file['url'].tolist()
-rspf_l_urls = rspf_l_file['url'].tolist()
-rspr_r_urls = rspr_r_file['url'].tolist()
+def getImages(sync_key_frame, assets_meta):
 
-def getImages(i):
     sample = dict()
-    sample["images"] = [fsp_l_struct, rsp_l_struct, lspf_r_struct, lspr_l_struct, rspf_l_struct, rspr_r_struct]
-    sample["images"][0]["url"] = fsp_l_urls[i]
-    sample["images"][1]["url"] = rsp_l_urls[i]
-    sample["images"][2]["url"] = lspf_r_urls[i]
-    sample["images"][3]["url"] = lspr_l_urls[i]
-    sample["images"][4]["url"] = rspf_l_urls[i]
-    sample["images"][5]["url"] = rspr_r_urls[i]
+    sample["images"] = [
+        fsp_l_struct,
+        rsp_l_struct,
+        lspf_r_struct,
+        lspr_l_struct,
+        rspf_l_struct,
+        rspr_r_struct,
+    ]
+
+    sample["images"][0]["url"] = getCamURL(
+        'fsp_l', sync_key_frame['cameras'], assets_meta
+    )
+    sample["images"][1]["url"] = getCamURL(
+        'rsp_l', sync_key_frame['cameras'], assets_meta
+    )
+    sample["images"][2]["url"] = getCamURL(
+        'lspf_r', sync_key_frame['cameras'], assets_meta
+    )
+    sample["images"][3]["url"] = getCamURL(
+        'lspr_l', sync_key_frame['cameras'], assets_meta
+    )
+    sample["images"][4]["url"] = getCamURL(
+        'rspf_l', sync_key_frame['cameras'], assets_meta
+    )
+    sample["images"][5]["url"] = getCamURL(
+        'rspr_r', sync_key_frame['cameras'], assets_meta
+    )
+
     return sample["images"]

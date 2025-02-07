@@ -1,11 +1,6 @@
 FROM ros:humble-ros-base-jammy AS base
 
-# Switch to much faster mirror for apt processes
-ENV OLD_MIRROR=archive.ubuntu.com
-ENV SEC_MIRROR=security.ubuntu.com
-ENV NEW_MIRROR=mirror.bytemark.co.uk
-
-RUN sed -i "s/$OLD_MIRROR\|$SEC_MIRROR/$NEW_MIRROR/g" /etc/apt/sources.list
+# FIXME: Use the fastest apt mirror (see #4)
 
 # Install key dependencies
 RUN apt-get update \
@@ -30,10 +25,17 @@ RUN apt-get update \
         ros-"$ROS_DISTRO"-rmw-cyclonedds-cpp \
         ros-"$ROS_DISTRO"-rosbag2-storage-mcap \
         ros-"$ROS_DISTRO"-velodyne-msgs \
+        ros-"$ROS_DISTRO"-mola \
+        ros-"$ROS_DISTRO"-mola-state-estimation \
+        ros-"$ROS_DISTRO"-mola-lidar-odometry \
         python3-pip \
         python3-vcstool \
     && pip install --no-cache-dir mcap pandas colorama segments-ai \
     && rm -rf /var/lib/apt/lists/*
+
+# To allow user upload data to SegmentAi
+ARG SEGMENTS_API_KEY=no-key
+ENV SEGMENTS_API_KEY=${SEGMENTS_API_KEY}
 
 # Setup ROS workspace folder
 ENV ROS_WS=/opt/ros_ws
@@ -91,6 +93,11 @@ RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
     && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -rf /opt/ros_ws/build $EXPORTER
 
+# Give read/write permissions to the user on the ROS_WS directory
+RUN chown -R $USERNAME:$USERNAME $ROS_WS && \
+    chmod -R 775 $ROS_WS
+
+
 # -----------------------------------------------------------------------
 
 FROM base AS prebuilt
@@ -100,9 +107,6 @@ FROM base AS prebuilt
 # -----------------------------------------------------------------------
 
 FROM prebuilt AS dev
-
-# Copy artifacts/binaries from base
-COPY --from=base $ROS_WS/install $ROS_WS/install
 
 # Add command to docker entrypoint to source newly compiled
 #   code when running docker container

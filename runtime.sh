@@ -19,7 +19,6 @@ Usage: runtime.sh [-b|bash] [-l|--local] [--path | -p ] [--help | -h]
 
 Options:
     -b | bash       Open bash in docker container
-    -f | --foxglove Run Foxglove bridge instead of recording a bag
     -l | --local    Use default local cyclone_dds.xml config
                     Optionally point to absolute -l /path/to/cyclone_dds.xml
     -p | --path   ROSBAGS_DIR_PATH
@@ -43,10 +42,6 @@ while [[ "$#" -gt 0 ]]; do
                 shift
             fi
             CYCLONE_VOL="-v $CYCLONE_DIR:/opt/ros_ws/cyclone_dds.xml"
-            ;;
-        -f|--foxglove)
-            BASH_CMD=/opt/ros_ws/container_tools/foxglove_bridge.sh
-            CHECK_PATH=false
             ;;
         -p|--path)
             if [[ -n "$2" && "$2" != -* ]]; then
@@ -82,12 +77,16 @@ if [ ! -d "$ROSBAGS_DIR" -a "$CHECK_PATH" = true ]; then
     exit 1
 fi
 
+# Verify SEGMENTS_API_KEY is set
+[ -z "$SEGMENTS_API_KEY" ] && echo "SEGMENTS_API_KEY is not set" && exit 1
+
 # Build docker image only up to runtime stage
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
-    --build-arg USERNAME=$(whoami) \
-    -t av_tools:latest \
+    --build-arg USERNAME=dataset_preproc \
+    --build-arg SEGMENTS_API_KEY=$SEGMENTS_API_KEY \
+    -t dataset_preproc:latest \
     -f Dockerfile --target runtime .
 
 # Run docker image
@@ -97,5 +96,6 @@ docker run -it --rm --net host --privileged \
     -v /tmp:/tmp \
     $CYCLONE_VOL \
     -v $ROSBAGS_DIR:/opt/ros_ws/rosbags \
+    -v $SCRIPT_DIR/output:/opt/ros_ws/output \
     -v /etc/localtime:/etc/localtime:ro \
-    av_tools:latest $BASH_CMD
+    dataset_preproc:latest $BASH_CMD

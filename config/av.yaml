@@ -4,49 +4,57 @@
 bag_path: "/opt/ros_ws/rosbags/ROSBAG.mcap"
 
 # Directory where the exported data will be saved
-output_dir: "/opt/ros_ws/output/"
+output_dir: "/opt/ros_ws/output"
 
 storage_id: "mcap"
 
 # List of topics to extract from the ROS2 bag
 topics:
-  # Configuration for the point cloud topic
+  # Configuration for Pointclouds, defined first to use their timestamp for sensor sync
   - name: "/sensor/lidar/top/points"  # 10Hz
     type: "PointCloud2"
     sample_interval: 1                # 10Hz
+    topic_dir: "lidar/top"
 
-  # Configuration for the RGB image topic
-  - name: "/sensor/camera/fsp_l/image_rect_color/compressed"  # 20Hz
+  # Configuration for Compressed Images
+  - name: "/sensor/camera/fsp_l/image_rect_color/compressed"   # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/fsp_l"
 
-  # Configuration for the RGB image topic
-  - name: "/sensor/camera/rsp_l/image_rect_color/compressed"  # 20Hz
+  - name: "/sensor/camera/rsp_l/image_rect_color/compressed"   # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/rsp_l"
 
-  # Configuration for the RGB image topic
   - name: "/sensor/camera/lspf_r/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/lspf_r"
 
-  # Configuration for the RGB image topic
   - name: "/sensor/camera/lspr_l/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/lspr_l"
 
-  # Configuration for the RGB image topic
   - name: "/sensor/camera/rspf_l/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 10Hz
+    topic_dir: "camera/rspf_l"
 
-  # Configuration for the RGB image topic
   - name: "/sensor/camera/rspr_r/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
-    encoding: "rgb8"
-    sample_interval: 1                                        # 10Hz
+    sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/rspr_r"
+
+#  # Configuration for IMU
+#   - name: "/sensor/imu/front/data"                            # 200Hz
+#     type: "IMU"
+#     sample_interval: 1                                        # 200Hz
+#     topic_dir: "imu"
+
+#  # Configuration for GPS
+#   - name: "/sensor/gps/nav_sat_fix"                           # 20Hz
+#     type: "GPS"
+#     sample_interval: 1                                        # 20Hz
+#     topic_dir: "gps"
