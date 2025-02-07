@@ -38,6 +38,7 @@ def run_mola_lidar_odometry(rosbag_path, output_dir):
     # Construct the command
     cmd = (
         f"export MOLA_USE_FIXED_LIDAR_POSE=true && "  # To avoid using lidar -> base_link TF
+        f"export MOLA_MIN_XYZ_BETWEEN_MAP_UPDATES=0.0001 && "  # Ensure we get a pose for every lidar frame
         f"mola-lidar-odometry-cli "
         f"-c {mola_config_path} "
         f"--input-rosbag2 {rosbag_path} "
