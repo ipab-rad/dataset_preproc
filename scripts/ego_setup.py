@@ -45,3 +45,10 @@ class EgoPoses:
             },
         }
         return ego_pose
+
+    def validatePoseCount(self, key_frames_n):
+        if len(self.ego_x) != key_frames_n:
+            msg = f'Trajectory poses = {len(self.ego_x)} | Key frames = {key_frames_n}'
+            return [False, msg]
+        else:
+            return [True, 'Ok']

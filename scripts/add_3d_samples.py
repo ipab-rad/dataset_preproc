@@ -106,6 +106,18 @@ ego_poses = ego_setup.EgoPoses(tum_files[0])
 
 sync_key_frames = export_metadata_yaml.get('time_sync_groups', [])
 
+# Verify that the number of trajectory poses matches the number of key frames
+[ok, msg] = ego_poses.validatePoseCount(len(sync_key_frames))
+
+if not ok:
+    print(
+        f'ERROR: The number of poses is not equal to the number of key frames.\n'
+        f'{msg}\n',
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
 frames = []
 
 print('Extacting key frames ...')
