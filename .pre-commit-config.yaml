@@ -1,16 +1,9 @@
-# To use:
-#
-#     pre-commit run -a
-#
-# Or:
-#
-#     pre-commit install  # (runs every time you commit in git)
-#
-# To update this file:
-#
-#     pre-commit autoupdate
-#
 # See https://github.com/pre-commit/pre-commit
+
+ci:
+  autofix_prs: false
+  autoupdate_schedule: monthly
+  skip: [ament_cppcheck, ament_cpplint, ament_lint_cmake]
 
 repos:
   # Standard hooks
@@ -151,15 +144,3 @@ repos:
     hooks:
       - id: hadolint
         args: ['--ignore=DL3008', '--ignore=DL3013']
-
-ci:
-  autofix_commit_msg: |
-      [pre-commit.ci] auto fixes from pre-commit.com hooks
-
-      for more information, see https://pre-commit.ci
-  autofix_prs: false
-  autoupdate_branch: ''
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-  autoupdate_schedule: monthly
-  skip: [ament_cppcheck, ament_cpplint, ament_lint_cmake]
-  submodules: false
