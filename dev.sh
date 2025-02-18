@@ -87,12 +87,18 @@ docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
     --build-arg USERNAME=dataset_preproc \
-    --build-arg SEGMENTS_API_KEY=$SEGMENTS_API_KEY \
     -t dataset_preproc:latest-dev \
     -f Dockerfile --target dev .
 
 # Get the absolute path of the script
 SCRIPT_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
+KEYS_FILE=$SCRIPT_DIR/keys/dataset_keys.env
+# Check this file exist, exit otherwise
+if [ ! -f "$KEYS_FILE" ]; then
+    echo "$KEYS_FILE does not exist! Docker container will not run"
+    exit 1
+fi
 
 # Run docker image with local code volumes for development
 docker run -it --rm --net host --privileged \
@@ -103,6 +109,7 @@ docker run -it --rm --net host --privileged \
     -v /dev:/dev \
     -v /tmp:/tmp \
     $CYCLONE_VOL \
+    -v $KEYS_FILE:/keys/dataset_keys.env \
     -v $ROSBAGS_DIR:/opt/ros_ws/rosbags \
     -v $SCRIPT_DIR/scripts:/opt/ros_ws/scripts \
     -v $SCRIPT_DIR/config:/opt/ros_ws/config \

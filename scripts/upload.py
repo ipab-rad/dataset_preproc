@@ -5,7 +5,8 @@ import json
 import yaml
 from pathlib import Path
 from copy import deepcopy
-from segments import SegmentsClient
+
+from scripts.s3_client import SegmentS3Client, EIDFfS3Client
 
 from scripts.utils import (
     directory_exists,
@@ -18,13 +19,9 @@ from scripts.utils import (
 
 class AssetUploader:
 
-    def __init__(self, data_directory) -> None:
-
-        # Get Segment API key from env variable
-        api_key = get_env_var('SEGMENTS_API_KEY')
-
-        # Initialise Segments.ai client
-        self.client = SegmentsClient(api_key)
+    def __init__(self, data_directory, s3_client_name='eidf') -> None:
+        # Initialise s3 client
+        self.s3 = self.get_s3_client(s3_client_name)
 
         directory_exists(data_directory)
 
@@ -41,6 +38,29 @@ class AssetUploader:
         # Ensure metadata is valid
         metadata_is_valid(self.export_metadata_yaml)
 
+    def get_s3_client(self, s3_client_name: str):
+        """
+        Create an S3 client based on the provided organisation name
+
+        :param s3_client_name: The organisation name ("segmentsai" or "eidf").
+        :return: An instance of an S3Client.
+        """
+
+        if s3_client_name.lower() == 'eidf':
+            bucket_name = get_env_var('AWS_BUCKET_NAME')
+            endpoint_url = get_env_var('AWS_ENDPOINT_URL')
+            print('S3 client --> EIDF')
+            return EIDFfS3Client(bucket_name, endpoint_url)
+        elif s3_client_name.lower() == 'segmentsai':
+            api_key = get_env_var('SEGMENTS_API_KEY')
+            print('S3 client --> SegmentsAI')
+            return SegmentS3Client(api_key)
+        else:
+            raise ValueError(
+                f'Unknown S3 client name: {s3_client_name} '
+                'Valid names: [\'eidf\',\'segmentsai\']'
+            )
+
     # Function to upload files
     def upload_file(self, local_file_path: Path, label: str):
         """
@@ -55,7 +75,7 @@ class AssetUploader:
             return None
 
         with local_file_path.open('rb') as f:
-            asset = self.client.upload_asset(f, label)
+            asset = self.s3.upload_file(f, label)
             return asset
 
     def run(self):
@@ -165,9 +185,13 @@ if __name__ == "__main__":
 
     data_directory = Path(sys.argv[1])
 
-    try:
-        uploader = AssetUploader(data_directory)
+    # Check if user set an optional arg
+    s3_org = 'eidf'
+    if len(sys.argv) == 3:
+        s3_org = sys.argv[2]
 
+    try:
+        uploader = AssetUploader(data_directory, s3_org)
         uploader.run()
 
     except Exception as e:
