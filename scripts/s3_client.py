@@ -1,10 +1,8 @@
 import abc
-import os
-import sys
 import boto3
 import json
 from botocore.config import Config
-from segments import SegmentsClient
+from segments import SegmentsClient, exceptions
 
 from typing import BinaryIO
 
@@ -55,6 +53,70 @@ class SegmentS3Client(S3Client):
         for dataset in datasets:
             print(dataset.name, dataset.description)
 
+    def verify_dataset(self, dataset_name: str) -> None:
+        """
+        Verify that a dataset exists.
+
+        :param dataset_name: The name of the dataset to verify.
+        :raises exceptions.ValidationError: If dataset validation fails.
+        :raises exceptions.APILimitError: If the API limit is exceeded.
+        :raises exceptions.NotFoundError: If the dataset is not found.
+        :raises exceptions.TimeoutError: If the request times out.
+        """
+        try:
+            self.s3_client.get_dataset(dataset_name)
+        except exceptions.ValidationError as e:
+            raise exceptions.ValidationError(
+                f'Failed to validate \'{dataset_name}\' dataset.'
+            ) from e
+        except exceptions.APILimitError as e:
+            raise exceptions.APILimitError('API limit exceeded.') from e
+        except exceptions.NotFoundError as e:
+            raise exceptions.NotFoundError(
+                f'Dataset \'{dataset_name}\' does not exist. Please provide an existent dataset.'
+            ) from e
+        except exceptions.TimeoutError as e:
+            raise exceptions.TimeoutError(
+                'Request timed out. Try again later.'
+            ) from e
+
+    def add_sample(
+        self, dataset_name: str, sequence_name: str, attributes: dict
+    ) -> None:
+        """
+        Add a sample to a SegmentsAI dataset.
+
+        :param dataset_name: The name of the dataset.
+        :param sequence_name: The sequence name within the dataset.
+        :param attributes: A dictionary containing sample attributes.
+        :return: The created sample object.
+        :raises exceptions.ValidationError: If sample validation fails.
+        :raises exceptions.APILimitError: If the API limit is exceeded.
+        :raises exceptions.NotFoundError: If the dataset is not found.
+        :raises exceptions.NetworkError: If a network error occurs.
+        :raises exceptions.TimeoutError: If the request times out.
+        """
+        try:
+            self.s3_client.add_sample(dataset_name, sequence_name, attributes)
+        except exceptions.ValidationError as e:
+            raise exceptions.ValidationError(
+                'Failed to validate sample.'
+            ) from e
+        except exceptions.APILimitError as e:
+            raise exceptions.APILimitError('API limit exceeded.') from e
+        except exceptions.NotFoundError as e:
+            raise exceptions.NotFoundError(
+                f'Dataset \'{dataset_name}\' does not exist. Please provide an existent dataset.'
+            ) from e
+        except exceptions.AlreadyExistsError as e:
+            raise exceptions.AlreadyExistsError(
+                f'The sequence \'{sequence_name}\' already exists in \'{dataset_name}\''
+            ) from e
+        except exceptions.TimeoutError as e:
+            raise exceptions.TimeoutError(
+                'Request timed out while adding sample.'
+            ) from e
+
 
 class EIDFfS3Client(S3Client):
     """
@@ -66,8 +128,8 @@ class EIDFfS3Client(S3Client):
     ):
         # Needed as per EIDF instructions
         config = Config(
-            request_checksum_calculation="when_required",
-            response_checksum_validation="when_required",
+            request_checksum_calculation='when_required',
+            response_checksum_validation='when_required',
         )
 
         self.s3_client = boto3.resource('s3', config=config)
