@@ -30,12 +30,9 @@ RUN apt-get update \
         ros-"$ROS_DISTRO"-mola-lidar-odometry \
         python3-pip \
         python3-vcstool \
-    && pip install --no-cache-dir mcap pandas colorama segments-ai \
+    && pip install --no-cache-dir mcap pandas colorama \
+        segments-ai awscli boto3 \
     && rm -rf /var/lib/apt/lists/*
-
-# To allow user upload data to SegmentAi
-ARG SEGMENTS_API_KEY=no-key
-ENV SEGMENTS_API_KEY=${SEGMENTS_API_KEY}
 
 # Setup ROS workspace folder
 ENV ROS_WS=/opt/ros_ws
@@ -97,6 +94,7 @@ RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
 RUN chown -R $USERNAME:$USERNAME $ROS_WS && \
     chmod -R 775 $ROS_WS
 
+COPY entrypoint.sh /entrypoint.sh
 
 # -----------------------------------------------------------------------
 
@@ -131,8 +129,8 @@ RUN echo 'alias colcon_build="colcon build --symlink-install \
     --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     source install/setup.bash"' >> /etc/bash.bashrc
 
-# Enter bash for clvelopment
-CMD ["bash"]
+# Define entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # -----------------------------------------------------------------------
 
@@ -147,5 +145,4 @@ RUN sed --in-place --expression \
         "\$isource \"$ROS_WS/install/setup.bash\" " \
         /ros_entrypoint.sh
 
-# Start recording a rosbag by default
-CMD ["bash"]
+ENTRYPOINT ["/entrypoint.sh"]
