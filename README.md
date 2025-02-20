@@ -8,8 +8,13 @@ To upload and add sample data to SegmentsAI, you will need access key tokens.
 
 ### Setting Up Access Keys
 
-Modify the [dataset_keys.env](./keys/dataset_keys.env) file to add your key tokens:
+Create a file named `dataset_keys.env` inside a `keys` directory in the parent directory of this repository:
 
+```bash
+mkdir -p keys && touch keys/dataset_keys.env
+```
+
+Add the following environment variables to `dataset_keys.env`:
 
 ```bash
 # EIDF AWS S3
