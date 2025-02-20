@@ -1,10 +1,38 @@
 # dataset_preproc
 
-Dataset pre-processing: consume mcap bags to produce annotation compatible data
+Dataset pre-processing: Processes MCAP bag files to generate data compatible with the [SegmentsAI](https://segments.ai/) annotation tool.
 
 ## Usage Guide
 
-You will need your segments.ai API key to upload/create datasets. Save it as an environment variable `SEGMENTS_API_KEY` in your host machine.
+To upload and add sample data to SegmentsAI, you will need access key tokens.
+
+### Setting Up Access Keys
+
+Create a file named `dataset_keys.env` inside a `keys` directory in the parent directory of this repository:
+
+```bash
+mkdir -p keys && touch keys/dataset_keys.env
+```
+
+Add the following environment variables to `dataset_keys.env`:
+
+```bash
+AWS_ACCESS_KEY_ID=my_access_key_id
+AWS_SECRET_ACCESS_KEY=my_secret_access_key
+AWS_ENDPOINT_URL=https://s3.eidf.ac.uk
+BUCKET_NAME=my_bucket_name
+
+# SegmentsAI key
+SEGMENTS_API_KEY=my_segment_ai_api_key
+```
+
+#### Important Notes
+- File and path names are case-sensitive.
+- The `dev.sh` script will attempt to locate the `dataset_keys.env` file. If the file is missing or incorrectly named, the script will throw an error.
+
+For access credentials, please contact [Hector Cruz](@hect95) or [Alejandro Bordallo](@GreatAlexander).
+
+
 
 ### Build and Run the Docker Container Interactively
 
@@ -36,18 +64,22 @@ We will refer to this directory as `<rosbag_output_dir>`.
 To extract the ego trajectory:
 
 ```bash
-python3 ./scripts/generate_ego_trajectory.py <my_path_to_rosbag.mcap> <rosbag_output_dir>
+python3 -m scripts.generate_ego_trajectory.py <my_path_to_rosbag.mcap> <rosbag_output_dir>
 ```
 
 A `.tum` file with the same name as your rosbag should appear in `<rosbag_output_dir>`.
 
-### Upload Data Sequence to Segment.ai
+### Upload Data to S3
 
-To upload the extracted data sequence:
+To upload the extracted data to either EIDF or SegmentsAI AWS S3, run:
 
 ```bash
-python3 ./scripts/upload.py <rosbag_output_dir>
+python3 -m scripts.upload <rosbag_output_dir> eidf
+# Or
+python3 -m scripts.upload <rosbag_output_dir> segments
 ```
+
+If no S3 organisation is specified, `eidf` is used by default.
 
 After the upload, you should see an `upload_metadata.json` file inside `<rosbag_output_dir>`.
 
@@ -58,7 +90,7 @@ Create a dataset if you haven't already and extract its name.
 Run the script:
 
 ```bash
-python3 ./scripts/add_3d_samples.py <my_dataset_name> <sequence_name> <rosbag_output_dir>
+python3 -m scripts.add_3d_samples.py <my_dataset_name> <sequence_name> <rosbag_output_dir>
 ```
 Where:
 - `<my_dataset_name>`: Segment.ai's dataset name
