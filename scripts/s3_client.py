@@ -123,9 +123,7 @@ class EIDFfS3Client(S3Client):
     Uploader for EIDF S3
     """
 
-    def __init__(
-        self, bucket_name: str, endpoint_url: str = "https://s3.eidf.ac.uk"
-    ):
+    def __init__(self, project_name: str, bucket_name: str, endpoint_url: str):
         # Needed as per EIDF instructions
         config = Config(
             request_checksum_calculation='when_required',
@@ -133,6 +131,7 @@ class EIDFfS3Client(S3Client):
         )
 
         self.s3_client = boto3.resource('s3', config=config)
+        self.project_name = project_name
         self.bucket_name = bucket_name
         self.endpoint_url = endpoint_url
 
@@ -146,7 +145,7 @@ class EIDFfS3Client(S3Client):
 
         if response:
             asset = TartanAsset(
-                f'{self.endpoint_url}/eidf150%3A{self.bucket_name}/{file_key}',
+                f'{self.endpoint_url}/{self.project_name}%3A{self.bucket_name}/{file_key}',
                 'super_unique_id',
             )
             return asset
@@ -159,7 +158,7 @@ class EIDFfS3Client(S3Client):
         for idx, obj in enumerate(bucket.objects.all()):
             print(f'Obj {idx}: {obj.key}')
             print(
-                f'\tURL: {self.endpoint_url}/eidf150%3A{self.bucket_name}/{obj.key}'
+                f'\tURL: {self.endpoint_url}/{self.project_name}%3A{self.bucket_name}/{obj.key}'
             )
             if max_prints is not None:
                 if idx > max_prints:

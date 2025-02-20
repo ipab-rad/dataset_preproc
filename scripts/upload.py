@@ -47,10 +47,11 @@ class AssetUploader:
         """
 
         if s3_client_name.lower() == 'eidf':
+            project_name = get_env_var('EIDF_PROJECT_NAME')
             bucket_name = get_env_var('AWS_BUCKET_NAME')
             endpoint_url = get_env_var('AWS_ENDPOINT_URL')
             print('S3 client --> EIDF')
-            return EIDFfS3Client(bucket_name, endpoint_url)
+            return EIDFfS3Client(project_name, bucket_name, endpoint_url)
         elif s3_client_name.lower() == 'segmentsai':
             api_key = get_env_var('SEGMENTS_API_KEY')
             print('S3 client --> SegmentsAI')
