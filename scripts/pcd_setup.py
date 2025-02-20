@@ -20,7 +20,7 @@ pcd_struct = {
             'qw': 1,
         },
     },
-    'default_z': 0.0,
+    'default_z': 0,
     'name': 'test',
     'timestamp': 0,
 }

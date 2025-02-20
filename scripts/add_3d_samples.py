@@ -23,7 +23,7 @@ class SegmentsSampleCreator:
         self.client = SegmentS3Client(api_key)
 
         # Based on vehicle's TF tree
-        self.LIDAR_HEIGHT_FROM_GROUND_M = -1.78
+        self.GROUND_Z_OFFSET_BELOW_LIDAR_M = -1.78
 
     def add(
         self, dataset_name: str, sequence_name: str, local_data_directory: Path
@@ -96,8 +96,8 @@ class SegmentsSampleCreator:
             # Get and Set images based on metadata
             sample['images'] = getImages(sync_key_frame, upload_metadata_json)
 
-            # Set Top lidar height from ground_level
-            sample['default_z'] = self.LIDAR_HEIGHT_FROM_GROUND_M
+            # Set ground height offset relative to the lidar
+            sample['default_z'] = self.GROUND_Z_OFFSET_BELOW_LIDAR_M
 
             # Hard copy needed!
             frames.append(copy.deepcopy(sample))
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 4:
         print(
             'ERROR: Please provide the required arguments\n'
-            'add_3d_sample.py <dataset_name> <sequence_name> <data_directory>',
+            'add_3d_samples.py <dataset_name> <sequence_name> <data_directory>',
             file=sys.stderr,
         )
         sys.exit(1)
