@@ -10,7 +10,11 @@ from labelling_preproc.common.ego_setup import EgoPoses
 from labelling_preproc.common.img_setup import getImages
 from labelling_preproc.common.pcd_setup import pcd_struct
 from labelling_preproc.common.s3_client import SegmentS3Client
-from labelling_preproc.common.utils import get_env_var, file_exists, directory_exists
+from labelling_preproc.common.utils import (
+    get_env_var,
+    file_exists,
+    directory_exists,
+)
 
 
 class SegmentsSampleCreator:
