@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.utils import file_exists, directory_exists
+from labelling_preproc.common.utils import file_exists, directory_exists
 
 
 class EgoTrajectoryGenerator:
