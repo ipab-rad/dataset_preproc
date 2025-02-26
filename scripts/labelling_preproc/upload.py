@@ -6,9 +6,9 @@ import yaml
 from pathlib import Path
 from copy import deepcopy
 
-from scripts.s3_client import SegmentS3Client, EIDFfS3Client
+from labelling_preproc.common.s3_client import SegmentS3Client, EIDFfS3Client
 
-from scripts.utils import (
+from labelling_preproc.common.utils import (
     directory_exists,
     file_exists,
     metadata_is_valid,
