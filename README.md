@@ -66,7 +66,7 @@ We will refer to this directory as `<rosbag_output_dir>`.
 To extract the ego trajectory:
 
 ```bash
-python3 -m scripts.generate_ego_trajectory.py <my_path_to_rosbag.mcap> <rosbag_output_dir>
+python3 -m labelling_preproc.generate_ego_trajectory <my_path_to_rosbag.mcap> <rosbag_output_dir>
 ```
 
 A `.tum` file with the same name as your rosbag should appear in `<rosbag_output_dir>`.
@@ -76,9 +76,9 @@ A `.tum` file with the same name as your rosbag should appear in `<rosbag_output
 To upload the extracted data to either EIDF or SegmentsAI AWS S3, run:
 
 ```bash
-python3 -m scripts.upload <rosbag_output_dir> eidf
+python3 -m labelling_preproc.upload <rosbag_output_dir> eidf
 # Or
-python3 -m scripts.upload <rosbag_output_dir> segments
+python3 -m labelling_preproc.upload <rosbag_output_dir> segments
 ```
 
 If no S3 organisation is specified, `eidf` is used by default.
@@ -92,7 +92,7 @@ Create a dataset if you haven't already and extract its name.
 Run the script:
 
 ```bash
-python3 -m scripts.add_3d_samples.py <my_dataset_name> <sequence_name> <rosbag_output_dir>
+python3 -m labelling_preproc.add_3d_samples <my_dataset_name> <sequence_name> <rosbag_output_dir>
 ```
 Where:
 - `<my_dataset_name>`: Segment.ai's dataset name
