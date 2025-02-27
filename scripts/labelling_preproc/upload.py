@@ -174,8 +174,7 @@ class AssetUploader:
         )
 
 
-if __name__ == "__main__":
-
+def main():
     # Ensure command-line argument is provided
     if len(sys.argv) < 2:
         print(
@@ -197,3 +196,7 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f"{e}")
+
+
+if __name__ == "__main__":
+    main()

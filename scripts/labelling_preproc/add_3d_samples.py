@@ -120,8 +120,7 @@ class SegmentsSampleCreator:
         print('Done \U00002714')
 
 
-if __name__ == '__main__':
-
+def main():
     # Ensure command-line argument is provided
     if len(sys.argv) < 4:
         print(
@@ -138,3 +137,7 @@ if __name__ == '__main__':
 
     sample_creator = SegmentsSampleCreator()
     sample_creator.add(dataset_name, sequence_name, data_directory)
+
+
+if __name__ == '__main__':
+    main()
