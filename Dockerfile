@@ -32,6 +32,7 @@ RUN apt-get update \
         python3-vcstool \
     && pip install --no-cache-dir mcap pandas colorama \
         segments-ai awscli boto3 \
+    && pip install --no-cache-dir --upgrade setuptools pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup ROS workspace folder

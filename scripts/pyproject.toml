@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "labelling_preproc"
+version = "0.1.0"
+description = "A package for labelling preprocessing"
+authors = [{ name = "Hector Cruz", email = "hcruzgo@ed.ac.uk" }]
+dependencies = []
+
+[tool.setuptools]
+packages = ["labelling_preproc"]
+
+[project.scripts]
+generate_ego_trajectory = "labelling_preproc.generate_ego_trajectory:main"
+upload_data = "labelling_preproc.upload:main"
+add_3d_sample = "labelling_preproc.add_3d_samples:main"
