@@ -14,6 +14,10 @@ else
     echo "Warning: /keys/dataset_keys.env not found. Skipping dataset key loading."
 fi
 
+# Important for access python scripts
+export PYTHONPATH="/usr/local/lib/python3.10/site-packages:$PYTHONPATH"
+export PATH="/usr/local/lib/python3.10/site-packages/bin:$PATH"
+
 # If no command is provided, start an interactive bash session
 if [ $# -eq 0 ]; then
     exec bash
