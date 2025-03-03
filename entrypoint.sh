@@ -17,6 +17,7 @@ fi
 # Important for access python scripts
 export PYTHONPATH="/usr/local/lib/python3.10/site-packages:$PYTHONPATH"
 export PATH="/usr/local/lib/python3.10/site-packages/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # If no command is provided, start an interactive bash session
 if [ $# -eq 0 ]; then
