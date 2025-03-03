@@ -125,7 +125,7 @@ def main():
     if len(sys.argv) < 4:
         print(
             'ERROR: Please provide the required arguments\n'
-            'add_3d_samples.py <dataset_name> <sequence_name> <data_directory>',
+            'add_3d_sample <dataset_name> <sequence_name> <data_directory>',
             file=sys.stderr,
         )
         sys.exit(1)

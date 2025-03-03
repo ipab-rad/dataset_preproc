@@ -14,5 +14,5 @@ packages = ["labelling_preproc", "labelling_preproc.common"]
 
 [project.scripts]
 generate_ego_trajectory = "labelling_preproc.generate_ego_trajectory:main"
-upload_data = "labelling_preproc.upload:main"
-add_3d_sample = "labelling_preproc.add_3d_samples:main"
+upload_data = "labelling_preproc.upload_data:main"
+add_3d_sample = "labelling_preproc.add_3d_sample:main"

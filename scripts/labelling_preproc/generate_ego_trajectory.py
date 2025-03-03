@@ -69,7 +69,7 @@ class EgoTrajectoryGenerator:
 def main():
     if len(sys.argv) != 3:
         print(
-            "Usage: python3 get_ego_trajectory.py <path_to_rosbag.mcap> <output_directory>",
+            "Usage: generate_ego_trajectory <path_to_rosbag.mcap> <output_directory>",
             file=sys.stderr,
         )
         sys.exit(1)
