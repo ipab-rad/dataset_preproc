@@ -86,5 +86,5 @@ def show_progress_bar(log_name, progress, total, bar_length=50):
     bar = '=' * completed_length + '-' * (bar_length - completed_length)
 
     # Print the progress bar with carriage return to overwrite the line
-    sys.stdout.write(f'\r\U0001F4E4 {log_name}: |{bar}| {percent} %')
+    sys.stdout.write(f'\r\U0001f4e4 {log_name}: |{bar}| {percent} %')
     sys.stdout.flush()

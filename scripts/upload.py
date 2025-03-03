@@ -170,7 +170,7 @@ class AssetUploader:
             json.dump(urls_list, outfile, indent=4)
 
         print(
-            f'\n\n\U0001F680 Uploading metadata saved as: {upload_metadata_file}\n'
+            f'\n\n\U0001f680 Uploading metadata saved as: {upload_metadata_file}\n'
         )
 
 

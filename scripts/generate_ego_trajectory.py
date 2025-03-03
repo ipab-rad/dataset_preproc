@@ -48,7 +48,7 @@ class EgoTrajectoryGenerator:
 
         # Run the command
         try:
-            print(f'\U000023F3 Running ...\n')
+            print(f'\U000023f3 Running ...\n')
             result = subprocess.run(
                 cmd,
                 shell=True,
@@ -58,11 +58,11 @@ class EgoTrajectoryGenerator:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            print(f'\U0001F4BE Trajectory filed saved as: {output_tum_path}\n')
+            print(f'\U0001f4be Trajectory filed saved as: {output_tum_path}\n')
 
         except subprocess.CalledProcessError as e:
             raise subprocess.CalledProcessError(
-                f'\U0000274C MOLA lidar-odometry cmd failed: {e}'
+                f'\U0000274c MOLA lidar-odometry cmd failed: {e}'
             )
 
 
