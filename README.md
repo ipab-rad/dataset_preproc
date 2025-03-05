@@ -101,3 +101,16 @@ Where:
 - `<rosbag_output_dir>`: Directory with the extracted rosbags and metadata files
 
 If successful, you will see your new segment inside your dataset.
+
+### Development Mode
+
+To open the container in development mode, run:
+```bash
+./dev.sh -p /path/to/ROSBAGS
+```
+Once the container is launched, you can install the Python packages via:
+```bash
+pip install -e ./scripts
+```
+
+The `-e` flag installs the Python packages in editable mode. This allows changes to be made and reflected directly in the script commands described above.
