@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.utils import file_exists, directory_exists
+from labelling_preproc.common.utils import file_exists, directory_exists
 
 
 class EgoTrajectoryGenerator:
@@ -66,10 +66,10 @@ class EgoTrajectoryGenerator:
             )
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) != 3:
         print(
-            "Usage: python3 get_ego_trajectory.py <path_to_rosbag.mcap> <output_directory>",
+            "Usage: generate_ego_trajectory <path_to_rosbag.mcap> <output_directory>",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -86,3 +86,7 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f'Error: {e}')
+
+
+if __name__ == "__main__":
+    main()

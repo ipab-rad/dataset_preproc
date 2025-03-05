@@ -1,4 +1,7 @@
+# Python cache
 __pycache__
+*.egg*
+build/
 
 # Ignore Keys
 keys/

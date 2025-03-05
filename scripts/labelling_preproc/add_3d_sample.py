@@ -6,11 +6,15 @@ import yaml
 import json
 from pathlib import Path
 
-from scripts.ego_setup import EgoPoses
-from scripts.img_setup import getImages
-from scripts.pcd_setup import pcd_struct
-from scripts.s3_client import SegmentS3Client
-from scripts.utils import get_env_var, file_exists, directory_exists
+from labelling_preproc.common.ego_setup import EgoPoses
+from labelling_preproc.common.img_setup import getImages
+from labelling_preproc.common.pcd_setup import pcd_struct
+from labelling_preproc.common.s3_client import SegmentS3Client
+from labelling_preproc.common.utils import (
+    get_env_var,
+    file_exists,
+    directory_exists,
+)
 
 
 class SegmentsSampleCreator:
@@ -116,13 +120,12 @@ class SegmentsSampleCreator:
         print('Done \U00002714')
 
 
-if __name__ == '__main__':
-
+def main():
     # Ensure command-line argument is provided
     if len(sys.argv) < 4:
         print(
             'ERROR: Please provide the required arguments\n'
-            'add_3d_samples.py <dataset_name> <sequence_name> <data_directory>',
+            'add_3d_sample <dataset_name> <sequence_name> <data_directory>',
             file=sys.stderr,
         )
         sys.exit(1)
@@ -134,3 +137,7 @@ if __name__ == '__main__':
 
     sample_creator = SegmentsSampleCreator()
     sample_creator.add(dataset_name, sequence_name, data_directory)
+
+
+if __name__ == '__main__':
+    main()

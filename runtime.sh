@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------------------
 
 CYCLONE_VOL=""
-BASH_CMD=""
+BASH_CMD="bash"
 
 # Default cyclone_dds.xml path
 CYCLONE_DIR=/home/$USER/cyclone_dds.xml
@@ -15,15 +15,16 @@ CHECK_PATH=true
 # Function to print usage
 usage() {
     echo "
-Usage: runtime.sh [-b|bash] [-l|--local] [--path | -p ] [--help | -h]
+Usage: runtime.sh [-b|bash] [-l|--local] [--path | -p ] [--help | -h] <cmd>
 
 Options:
-    -b | bash       Open bash in docker container
     -l | --local    Use default local cyclone_dds.xml config
                     Optionally point to absolute -l /path/to/cyclone_dds.xml
     -p | --path   ROSBAGS_DIR_PATH
                     Specify path to store recorded rosbags
     -h | --help     Display this help message and exit.
+
+An interactive bash session will start if no <cmd> is provided.
     "
     exit 1
 }
@@ -32,10 +33,6 @@ Options:
 # Parse command-line options
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -b|bash)
-            BASH_CMD=bash
-            ;;
-            # Option to specify path
         -l|--local)
             if [[ -n "$2" && "$2" != -*  && "$2" != "bash" ]]; then
                 CYCLONE_DIR="$2"
@@ -56,12 +53,16 @@ while [[ "$#" -gt 0 ]]; do
             usage
             ;;
         *)
-            echo "Unknown option: $1"
-            usage
+            BASH_CMD+=("$1")  # Save all remaining args as the command
             ;;
     esac
     shift
 done
+
+# If no command was given, default to bash
+if [[ ${#CMD[@]} -eq 0 ]]; then
+    BASH_CMD=("bash")
+fi
 
 # Verify CYCLONE_DIR exists
 if [ -n "$CYCLONE_VOL" ]; then
@@ -77,17 +78,24 @@ if [ ! -d "$ROSBAGS_DIR" -a "$CHECK_PATH" = true ]; then
     exit 1
 fi
 
-# Verify SEGMENTS_API_KEY is set
-[ -z "$SEGMENTS_API_KEY" ] && echo "SEGMENTS_API_KEY is not set" && exit 1
 
 # Build docker image only up to runtime stage
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
     --build-arg USERNAME=dataset_preproc \
-    --build-arg SEGMENTS_API_KEY=$SEGMENTS_API_KEY \
     -t dataset_preproc:latest \
     -f Dockerfile --target runtime .
+
+# Get the absolute path of the script
+SCRIPT_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
+KEYS_FILE=$SCRIPT_DIR/keys/dataset_keys.env
+# Check this file exist, exit otherwise
+if [ ! -f "$KEYS_FILE" ]; then
+    echo "$KEYS_FILE does not exist! Docker container will not run"
+    exit 1
+fi
 
 # Run docker image
 docker run -it --rm --net host --privileged \
@@ -95,7 +103,9 @@ docker run -it --rm --net host --privileged \
     -v /dev:/dev \
     -v /tmp:/tmp \
     $CYCLONE_VOL \
+    -v $KEYS_FILE:/keys/dataset_keys.env \
     -v $ROSBAGS_DIR:/opt/ros_ws/rosbags \
+    -v $SCRIPT_DIR/config:/opt/ros_ws/config \
     -v $SCRIPT_DIR/output:/opt/ros_ws/output \
     -v /etc/localtime:/etc/localtime:ro \
     dataset_preproc:latest $BASH_CMD

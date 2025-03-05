@@ -32,6 +32,7 @@ RUN apt-get update \
         python3-vcstool \
     && pip install --no-cache-dir mcap pandas colorama \
         segments-ai awscli boto3 \
+    && pip install --no-cache-dir --upgrade setuptools pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Setup ROS workspace folder
@@ -100,11 +101,15 @@ COPY entrypoint.sh /entrypoint.sh
 
 FROM base AS prebuilt
 
-# Nothing to build from source
+WORKDIR $ROS_WS
+
+# Install Python packages into system-wide location
+RUN pip install --no-cache-dir \
+    --target=/usr/local/lib/python3.10/site-packages ./scripts
 
 # -----------------------------------------------------------------------
 
-FROM prebuilt AS dev
+FROM base AS dev
 
 # Add command to docker entrypoint to source newly compiled
 #   code when running docker container
@@ -137,7 +142,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 FROM base AS runtime
 
 # Copy artifacts/binaries from prebuilt
-COPY --from=prebuilt $ROS_WS/install $ROS_WS/install
+COPY --from=prebuilt /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
 # Add command to docker entrypoint to source newly compiled
 #   code when running docker container

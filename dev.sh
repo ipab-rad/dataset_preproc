@@ -79,9 +79,6 @@ if [ "$headless" = "false" ]; then
     xhost + >/dev/null
 fi
 
-# Verify SEGMENTS_API_KEY is set
-[ -z "$SEGMENTS_API_KEY" ] && echo "SEGMENTS_API_KEY is not set" && exit 1
-
 # Build docker image up to dev stage
 docker build \
     --build-arg USER_ID=$(id -u) \
