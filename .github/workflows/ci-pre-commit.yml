@@ -6,6 +6,6 @@ on:
 
 jobs:
   pre-commit:
-    uses: ./.github/workflows/reusable-pre-commit.yml
-    with:
-      ros_distro: humble
+    uses: ./.github/workflows/reusable-update-pre-commit.yml
+    secrets:
+      precommit-pr-token: ${{ secrets.PRECOMMIT_AUTOUPDATE_PR_TOKEN }}

@@ -50,14 +50,18 @@ jobs:
         id: git_status
         run: |
           cd ${{ env.path }}
-          git diff --unified=1 --quiet && \
-          echo "changed=false" >> $GITHUB_OUTPUT || \ 
-          echo "changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: There are changes
+        id: git_diff
         if: steps.git_status.outputs.changed == 'true'
         run: |
           cd ${{ env.path }}
+          {
+            echo 'PR_COMMIT_DIFF<<EOF'
+            git diff --unified=1
+            echo EOF
+          } >> "$GITHUB_ENV"
           git diff --exit-code || true
 
       - name: No changes!
@@ -72,28 +76,36 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: auto-update-${{ github.event.inputs.ref_for_scheduled_build }}
-          base: main
-          commit-message: Bump version of pre-commit hooks
+          base: fix-precommit
+          commit-message: |
+            Bump version of pre-commit hooks
+            
+            ```diff
+            ${{ env.PR_COMMIT_DIFF }}
+            ```
           title: Bump version of pre-commit hooks
           body: |
             This pull request contains auto-updated files of the pre-commit config.
-            $GITHUB_OUTPUT
+            
+            ```diff
+            ${{ env.PR_COMMIT_DIFF }}
+            ```
           delete-branch: true
           draft: false
           path: ${{ env.path }}
 
-      - name: Enable Pull Request Automerge
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        run: |
-          cd ${{ env.path }}
-          gh pr merge --squash --auto "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Enable Pull Request Automerge
+      #   if: steps.cpr.outputs.pull-request-operation == 'created'
+      #   run: |
+      #     cd ${{ env.path }}
+      #     gh pr merge --squash --auto "${{ steps.cpr.outputs.pull-request-number }}"
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Auto approve
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        run: |
-          cd ${{ env.path }}
-          gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.precommit-pr-token }}
+      # - name: Auto approve
+      #   if: steps.cpr.outputs.pull-request-operation == 'created'
+      #   run: |
+      #     cd ${{ env.path }}
+      #     gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
+      #   env:
+      #     GH_TOKEN: ${{ secrets.precommit-pr-token }}
