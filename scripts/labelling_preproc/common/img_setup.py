@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+# Cameras' id list
+# Do not modify unless you know what you are doing!
+camera_ids_list = ['fsp_l', 'rsp_l', 'lspf_r', 'lspr_l', 'rspf_l', 'rspr_r']
+
+image_struct = {'image': {'url': ''}, 'name': ''}
+
 # FIXME: Create all these structs from a file (see #3)
 
 # Front camera dictionary structure
@@ -183,7 +189,7 @@ rspr_r_struct = {
 }
 
 
-def getCamURL(camera_name, cameras_list, assets_meta):
+def get_cam_url(camera_name, cameras_list, assets_meta):
 
     cam_id = None
     for camera in cameras_list:
@@ -193,11 +199,12 @@ def getCamURL(camera_name, cameras_list, assets_meta):
     if cam_id is None:
         return 'S3 url not found!'
 
-    return assets_meta['assets_ids'][str(cam_id)]['s3_url']
+    return assets_meta[str(cam_id)]['s3_url']
 
 
-def getImages(sync_key_frame, assets_meta):
+def get_images(sync_key_frame, assets_meta):
 
+    # FIXME: Simplify this (see #3)
     sample = dict()
     sample["images"] = [
         fsp_l_struct,
@@ -208,22 +215,22 @@ def getImages(sync_key_frame, assets_meta):
         rspr_r_struct,
     ]
 
-    sample["images"][0]["url"] = getCamURL(
+    sample["images"][0]["url"] = get_cam_url(
         'fsp_l', sync_key_frame['cameras'], assets_meta
     )
-    sample["images"][1]["url"] = getCamURL(
+    sample["images"][1]["url"] = get_cam_url(
         'rsp_l', sync_key_frame['cameras'], assets_meta
     )
-    sample["images"][2]["url"] = getCamURL(
+    sample["images"][2]["url"] = get_cam_url(
         'lspf_r', sync_key_frame['cameras'], assets_meta
     )
-    sample["images"][3]["url"] = getCamURL(
+    sample["images"][3]["url"] = get_cam_url(
         'lspr_l', sync_key_frame['cameras'], assets_meta
     )
-    sample["images"][4]["url"] = getCamURL(
+    sample["images"][4]["url"] = get_cam_url(
         'rspf_l', sync_key_frame['cameras'], assets_meta
     )
-    sample["images"][5]["url"] = getCamURL(
+    sample["images"][5]["url"] = get_cam_url(
         'rspr_r', sync_key_frame['cameras'], assets_meta
     )
 
