@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+sensor_sequence_struct = {'name': '', 'task_type': '', 'attributes': {}}
+
 # Pointcloud sample dictionary structure
 pcd_struct = {
     'pcd': {
