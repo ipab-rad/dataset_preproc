@@ -1,10 +1,39 @@
 #!/usr/bin/python3
 
+# Sensor sequence dictionary structure
+sensor_sequence_struct = {'name': '', 'task_type': '', 'attributes': {}}
+
 # Cameras' id list
 # Do not modify unless you know what you are doing!
 camera_ids_list = ['fsp_l', 'rsp_l', 'lspf_r', 'lspr_l', 'rspf_l', 'rspr_r']
 
+# Image sample dictionary structure
 image_struct = {'image': {'url': ''}, 'name': ''}
+
+# Pointcloud sample dictionary structure
+pcd_struct = {
+    'pcd': {
+        'url': 'pcd_url',
+        'type': 'pcd',
+    },
+    'images': [],
+    'ego_pose': {
+        'position': {
+            'x': 0,
+            'y': 0,
+            'z': 0,
+        },
+        'heading': {
+            'qx': 0,
+            'qy': 0,
+            'qz': 0,
+            'qw': 1,
+        },
+    },
+    'default_z': 0,
+    'name': 'test',
+    'timestamp': 0,
+}
 
 # FIXME: Create all these structs from a file (see #3)
 
@@ -187,51 +216,3 @@ rspr_r_struct = {
     "camera_convention": "OpenCV",
     "name": "camera_rspr_r",
 }
-
-
-def get_cam_url(camera_name, cameras_list, assets_meta):
-
-    cam_id = None
-    for camera in cameras_list:
-        if camera['name'] == camera_name:
-            cam_id = camera['global_id']
-
-    if cam_id is None:
-        return 'S3 url not found!'
-
-    return assets_meta[str(cam_id)]['s3_url']
-
-
-def get_images(sync_key_frame, assets_meta):
-
-    # FIXME: Simplify this (see #3)
-    sample = dict()
-    sample["images"] = [
-        fsp_l_struct,
-        rsp_l_struct,
-        lspf_r_struct,
-        lspr_l_struct,
-        rspf_l_struct,
-        rspr_r_struct,
-    ]
-
-    sample["images"][0]["url"] = get_cam_url(
-        'fsp_l', sync_key_frame['cameras'], assets_meta
-    )
-    sample["images"][1]["url"] = get_cam_url(
-        'rsp_l', sync_key_frame['cameras'], assets_meta
-    )
-    sample["images"][2]["url"] = get_cam_url(
-        'lspf_r', sync_key_frame['cameras'], assets_meta
-    )
-    sample["images"][3]["url"] = get_cam_url(
-        'lspr_l', sync_key_frame['cameras'], assets_meta
-    )
-    sample["images"][4]["url"] = get_cam_url(
-        'rspf_l', sync_key_frame['cameras'], assets_meta
-    )
-    sample["images"][5]["url"] = get_cam_url(
-        'rspr_r', sync_key_frame['cameras'], assets_meta
-    )
-
-    return sample["images"]

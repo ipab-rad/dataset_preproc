@@ -7,15 +7,8 @@ import json
 from pathlib import Path
 
 from labelling_preproc.common.ego_setup import EgoPoses
-from labelling_preproc.common.img_setup import (
-    camera_ids_list,
-    get_images,
-    image_struct,
-)
-from labelling_preproc.common.pcd_setup import (
-    pcd_struct,
-    sensor_sequence_struct,
-)
+from labelling_preproc.common.sample_formats import camera_ids_list, sensor_sequence_struct
+from labelling_preproc.common.sensor_frame_ceator import SensorFrameCreator
 from labelling_preproc.common.s3_client import SegmentS3Client
 from labelling_preproc.common.utils import (
     get_env_var,
@@ -32,50 +25,10 @@ class SegmentsSampleCreator:
 
         # Initialise Segments.ai client
         self.client = SegmentS3Client(api_key)
+        
+        # Initialise Frame creator
+        self.frame_creator = SensorFrameCreator()
 
-        # Based on vehicle's TF tree
-        self.GROUND_Z_OFFSET_BELOW_LIDAR_M = -1.78
-
-    def create_3dpointcloud_frame(
-        self, idx, sync_key_frame, assets_meta, ego_poses
-    ):
-        # Initialise frame with the template struct
-        pointcloud_frame = pcd_struct
-
-        # Set LIDAR url
-        lidar_asset_id = str(sync_key_frame['lidar']['global_id'])
-        pointcloud_frame['pcd']['url'] = assets_meta[lidar_asset_id]['s3_url']
-
-        # Set frame timestamp
-        total_nanosec = (
-            sync_key_frame['stamp']['sec'] * (10**9)
-            + sync_key_frame['stamp']['nanosec']
-        )
-        pointcloud_frame['timestamp'] = str(total_nanosec)
-
-        # Set frame name based on index
-        pointcloud_frame['name'] = 'frame_' + str(idx)
-
-        # Get and set ego pose based on index
-        pointcloud_frame['ego_pose'] = ego_poses.getEgoPose(idx)
-
-        # Get and Set images based on metadata
-        pointcloud_frame['images'] = get_images(sync_key_frame, assets_meta)
-
-        # Set ground height offset relative to the lidar
-        pointcloud_frame['default_z'] = self.GROUND_Z_OFFSET_BELOW_LIDAR_M
-
-        return pointcloud_frame
-
-    def create_image_frame(self, idx, cam_meta, assets_meta):
-        image_frame = image_struct
-        # Get url based on camera's image global id
-        img_asset_id = str(cam_meta['global_id'])
-        url = assets_meta[img_asset_id]['s3_url']
-        image_frame['image']['url'] = url
-        image_frame['name'] = 'frame_' + str(idx)
-
-        return image_frame
 
     def add(
         self, dataset_name: str, sequence_name: str, local_data_directory: Path
@@ -131,14 +84,14 @@ class SegmentsSampleCreator:
         # Iterate over synchronised key frames
         for idx, sync_key_frame in enumerate(sync_key_frames):
             # Create pointcloud frame
-            pointcloud_frame = self.create_3dpointcloud_frame(
+            pointcloud_frame = self.frame_creator.create_3dpointcloud_frame(
                 idx, sync_key_frame, assets_meta, ego_poses
             )
             pointcloud_frames.append(copy.deepcopy(pointcloud_frame))
 
             # Create an image frame per camera
             for cam_meta in sync_key_frame['cameras']:
-                image_frame = self.create_image_frame(
+                image_frame = self.frame_creator.create_image_frame(
                     idx, cam_meta, assets_meta
                 )
                 cameras_frames[cam_meta['name']].append(
@@ -156,7 +109,7 @@ class SegmentsSampleCreator:
 
         for cam_name, image_frames in cameras_frames.items():
             camera_sequence = sensor_sequence_struct
-            camera_sequence['name'] = cam_name
+            camera_sequence['name'] = 'camera_' + cam_name
             camera_sequence['task_type'] = 'image-vector-sequence'
             camera_sequence['attributes'] = {'frames': image_frames}
             multi_sensor_sequence['sensors'].append(
