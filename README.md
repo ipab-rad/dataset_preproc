@@ -85,18 +85,18 @@ If no S3 organisation is specified, `eidf` is used by default.
 
 After the upload, you should see an `upload_metadata.json` file inside `<rosbag_output_dir>`.
 
-### Add a 3D Sample to Segment.ai
+### Add a Sample to Segment.ai
 
 Create a dataset if you haven't already and extract its name.
 
 Run the script:
 
 ```bash
-add_3d_sample <my_dataset_name> <sequence_name> <rosbag_output_dir>
+add_segmentsai_sample <my_dataset_name> <sequence_name> <rosbag_output_dir>
 ```
 Where:
 - `<my_dataset_name>`: Segment.ai's dataset name
-- `<sequence_name>`: Desired sequence name for the 3D sample
+- `<sequence_name>`: Desired sequence name for the multi-sensor sample
     - Ensure the sequence name is unique within your dataset; otherwise, the sample will not be uploaded
 - `<rosbag_output_dir>`: Directory with the extracted rosbags and metadata files
 

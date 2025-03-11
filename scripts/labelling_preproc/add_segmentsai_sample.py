@@ -7,8 +7,11 @@ import json
 from pathlib import Path
 
 from labelling_preproc.common.ego_setup import EgoPoses
-from labelling_preproc.common.img_setup import getImages
-from labelling_preproc.common.pcd_setup import pcd_struct
+from labelling_preproc.common.sample_formats import (
+    camera_ids_list,
+    sensor_sequence_struct,
+)
+from labelling_preproc.common.sensor_frame_ceator import SensorFrameCreator
 from labelling_preproc.common.s3_client import SegmentS3Client
 from labelling_preproc.common.utils import (
     get_env_var,
@@ -26,8 +29,8 @@ class SegmentsSampleCreator:
         # Initialise Segments.ai client
         self.client = SegmentS3Client(api_key)
 
-        # Based on vehicle's TF tree
-        self.GROUND_Z_OFFSET_BELOW_LIDAR_M = -1.78
+        # Initialise Frame creator
+        self.frame_creator = SensorFrameCreator()
 
     def add(
         self, dataset_name: str, sequence_name: str, local_data_directory: Path
@@ -52,6 +55,7 @@ class SegmentsSampleCreator:
 
         with open(upload_metadata_file) as json_file:
             upload_metadata_json = json.load(json_file)
+            assets_meta = upload_metadata_json['assets_ids']
 
         # Search for a .tum file
         tum_files = list(local_data_directory.glob('*.tum'))
@@ -72,50 +76,62 @@ class SegmentsSampleCreator:
                 f'{msg}\n'
             )
 
-        frames = []
+        # Initialise sensors' frames lists
+        pointcloud_frames = []
+        cameras_frames = {}
+        for cam_id in camera_ids_list:
+            cameras_frames[cam_id] = []
 
-        print('Extacting key frames ...')
-        # Iterate over synchronised key frames (1 x Lidar + 6 x Cameras)
+        print('Creating sensor sequences samples...')
+        # Iterate over synchronised key frames
         for idx, sync_key_frame in enumerate(sync_key_frames):
-            sample = pcd_struct
-            # Set LIDAR url
-            lidar_asset_id = sync_key_frame['lidar']['global_id']
-            sample['pcd']['url'] = upload_metadata_json['assets_ids'][
-                str(lidar_asset_id)
-            ]['s3_url']
-
-            # Set frame timestamp
-            total_nanosec = (
-                sync_key_frame['stamp']['sec'] * (10**9)
-                + sync_key_frame['stamp']['nanosec']
+            # Create pointcloud frame
+            pointcloud_frame = self.frame_creator.create_3dpointcloud_frame(
+                idx, sync_key_frame, assets_meta, ego_poses
             )
-            sample['timestamp'] = str(total_nanosec)
+            pointcloud_frames.append(copy.deepcopy(pointcloud_frame))
 
-            # Set frame name based on index
-            sample['name'] = 'frame_' + str(idx)
+            # Create an image frame per camera
+            for cam_meta in sync_key_frame['cameras']:
+                image_frame = self.frame_creator.create_image_frame(
+                    idx, cam_meta, assets_meta
+                )
+                cameras_frames[cam_meta['name']].append(
+                    copy.deepcopy(image_frame)
+                )
 
-            # Get and set ego pose based on index
-            sample['ego_pose'] = ego_poses.getEgoPose(idx)
+        # Create mulit-sensor sequence
+        multi_sensor_sequence = {'sensors': []}
 
-            # Get and Set images based on metadata
-            sample['images'] = getImages(sync_key_frame, upload_metadata_json)
+        lidar_sequence = sensor_sequence_struct
+        lidar_sequence['name'] = 'lidar top'
+        lidar_sequence['task_type'] = 'pointcloud-cuboid-sequence'
+        lidar_sequence['attributes'] = {'frames': pointcloud_frames}
+        multi_sensor_sequence['sensors'].append(copy.deepcopy(lidar_sequence))
 
-            # Set ground height offset relative to the lidar
-            sample['default_z'] = self.GROUND_Z_OFFSET_BELOW_LIDAR_M
+        for cam_name, image_frames in cameras_frames.items():
+            camera_sequence = sensor_sequence_struct
+            camera_sequence['name'] = 'camera_' + cam_name
+            camera_sequence['task_type'] = 'image-vector-sequence'
+            camera_sequence['attributes'] = {'frames': image_frames}
+            multi_sensor_sequence['sensors'].append(
+                copy.deepcopy(camera_sequence)
+            )
 
-            # Hard copy needed!
-            frames.append(copy.deepcopy(sample))
+        # Save multi-sensor sequence as JSON
+        multi_sensor_sequence_file = (
+            local_data_directory / 'multi_sensor_sequence.json'
+        )
 
-        # Save  JSON (DEBUG)
-        samples_json_file = local_data_directory / '3d_sample_frames.json'
-
-        with samples_json_file.open('w') as outfile:
-            json.dump(frames, outfile, indent=4)
+        with multi_sensor_sequence_file.open('w') as outfile:
+            json.dump(multi_sensor_sequence, outfile, indent=4)
 
         # Upload sequence sample
         print('Uploading sample ...')
-        attributes = {'frames': frames}
-        self.client.add_sample(dataset_name, sequence_name, attributes)
+
+        self.client.add_sample(
+            dataset_name, sequence_name, multi_sensor_sequence
+        )
 
         print('Done \U00002714')
 
@@ -125,7 +141,7 @@ def main():
     if len(sys.argv) < 4:
         print(
             'ERROR: Please provide the required arguments\n'
-            'add_3d_sample <dataset_name> <sequence_name> <data_directory>',
+            'add_segmentsai_sample <dataset_name> <sequence_name> <data_directory>',
             file=sys.stderr,
         )
         sys.exit(1)
