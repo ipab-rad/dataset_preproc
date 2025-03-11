@@ -7,7 +7,10 @@ import json
 from pathlib import Path
 
 from labelling_preproc.common.ego_setup import EgoPoses
-from labelling_preproc.common.sample_formats import camera_ids_list, sensor_sequence_struct
+from labelling_preproc.common.sample_formats import (
+    camera_ids_list,
+    sensor_sequence_struct,
+)
 from labelling_preproc.common.sensor_frame_ceator import SensorFrameCreator
 from labelling_preproc.common.s3_client import SegmentS3Client
 from labelling_preproc.common.utils import (
@@ -25,10 +28,9 @@ class SegmentsSampleCreator:
 
         # Initialise Segments.ai client
         self.client = SegmentS3Client(api_key)
-        
+
         # Initialise Frame creator
         self.frame_creator = SensorFrameCreator()
-
 
     def add(
         self, dataset_name: str, sequence_name: str, local_data_directory: Path

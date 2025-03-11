@@ -1,17 +1,18 @@
 #!/usr/bin/python3
 
 from labelling_preproc.common.sample_formats import (
-        image_struct,
-        pcd_struct,
-        fsp_l_struct,
-        rsp_l_struct,
-        lspf_r_struct,
-        lspr_l_struct,
-        rspf_l_struct,
-        rspr_r_struct)
+    image_struct,
+    pcd_struct,
+    fsp_l_struct,
+    rsp_l_struct,
+    lspf_r_struct,
+    lspr_l_struct,
+    rspf_l_struct,
+    rspr_r_struct,
+)
 
 
-class SensorFrameCreator():
+class SensorFrameCreator:
 
     def __init__(self):
         # Based on vehicle's TF tree
@@ -42,7 +43,8 @@ class SensorFrameCreator():
 
         # Get and Set images based on metadata
         pointcloud_frame['images'] = self.get_images(
-            sync_key_frame, assets_meta)
+            sync_key_frame, assets_meta
+        )
 
         # Set ground height offset relative to the lidar
         pointcloud_frame['default_z'] = self.GROUND_Z_OFFSET_BELOW_LIDAR_M
