@@ -1,7 +1,7 @@
 # Configuration for processing ROS2 bag files
 
 # Path to the input ROS2 bag file
-bag_path: "/opt/ros_ws/rosbags/2025_02_07-14_44_20_meadows_clockwise/2025_02_07-14_44_20_meadows_clockwise_51.mcap"
+bag_path: "/opt/ros_ws/rosbags/ROSBAG.mcap"
 
 # Directory where the exported data will be saved
 output_dir: "/opt/ros_ws/output"
