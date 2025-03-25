@@ -85,8 +85,8 @@ RUN apt-get update \
     && pip install --no-cache-dir mcap colorama \
     && rm -rf /var/lib/apt/lists/*
 
-ENV EXPORTER=/opt/ros_ws/src/ros2_bag_exporter
-RUN git clone https://github.com/ipab-rad/ros2_bag_exporter.git $EXPORTER \
+ENV EXPORTER=/opt/ros_ws/src/tartan_rosbag_exporter
+RUN git clone https://github.com/ipab-rad/tartan_rosbag_exporter.git $EXPORTER \
     && . /opt/ros/"$ROS_DISTRO"/setup.sh \
     && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -rf /opt/ros_ws/build $EXPORTER

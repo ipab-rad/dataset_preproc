@@ -1,7 +1,7 @@
 # Configuration for processing ROS2 bag files
 
 # Path to the input ROS2 bag file
-bag_path: "/opt/ros_ws/rosbags/ROSBAG.mcap"
+bag_path: "/opt/ros_ws/rosbags/2025_02_07-14_44_20_meadows_clockwise/2025_02_07-14_44_20_meadows_clockwise_51.mcap"
 
 # Directory where the exported data will be saved
 output_dir: "/opt/ros_ws/output"
@@ -22,9 +22,19 @@ topics:
     sample_interval: 1                                         # 20Hz
     topic_dir: "camera/fsp_l"
 
+  - name: "/sensor/camera/fsp_l/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
+    topic_dir: "camera/fsp_l"
+
   - name: "/sensor/camera/rsp_l/image_rect_color/compressed"   # 20Hz
     type: "CompressedImage"
     sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/rsp_l"
+
+  - name: "/sensor/camera/rsp_l/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
     topic_dir: "camera/rsp_l"
 
   - name: "/sensor/camera/lspf_r/image_rect_color/compressed"  # 20Hz
@@ -32,9 +42,19 @@ topics:
     sample_interval: 1                                         # 20Hz
     topic_dir: "camera/lspf_r"
 
+  - name: "/sensor/camera/lspf_r/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
+    topic_dir: "camera/lspf_r"
+
   - name: "/sensor/camera/lspr_l/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
     sample_interval: 1                                         # 20Hz
+    topic_dir: "camera/lspr_l"
+
+  - name: "/sensor/camera/lspr_l/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
     topic_dir: "camera/lspr_l"
 
   - name: "/sensor/camera/rspf_l/image_rect_color/compressed"  # 20Hz
@@ -42,10 +62,25 @@ topics:
     sample_interval: 1                                         # 10Hz
     topic_dir: "camera/rspf_l"
 
+  - name: "/sensor/camera/rspf_l/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
+    topic_dir: "camera/rspf_l"
+
   - name: "/sensor/camera/rspr_r/image_rect_color/compressed"  # 20Hz
     type: "CompressedImage"
     sample_interval: 1                                         # 20Hz
     topic_dir: "camera/rspr_r"
+
+  - name: "/sensor/camera/rspr_r/camera_info"
+    type: "CameraInfo"
+    sample_interval: 0
+    topic_dir: "camera/rspr_r"
+
+  - name: "/tf_static"
+    type: "TF"
+    sample_interval: 0
+    topic_dir: "extrinsics"
 
 #  # Configuration for IMU
 #   - name: "/sensor/imu/front/data"                            # 200Hz
