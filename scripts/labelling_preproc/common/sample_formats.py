@@ -36,6 +36,34 @@ pcd_struct = {
 }
 
 # FIXME: Create all these structs from a file (see #3)
+camera_image_struct = {
+    "url": "image_url",
+    "row": 0,  # Row when displaying multiple camera images
+    "col": 1,  # Col when displaying multiple camera images
+    "intrinsics": {
+        "intrinsic_matrix": [
+            [1451.49531, 0.0, 1218.93228],
+            [0.0, 1450.7118, 683.50771],
+            [0.0, 0.0, 1.0],
+        ]
+    },
+    "extrinsics": {
+        "translation": {"x": 0.660, "y": 0.316, "z": -0.275},
+        "rotation": {"qx": 0.518, "qy": -0.515, "qz": 0.486, "qw": -0.480},
+    },
+    "distortion": {
+        "model": "brown-conrady",
+        "coefficients": {
+            "k1": -0.01423,
+            "k2": 0.03806,
+            "k3": 0.0,
+            "p1": -0.00111,
+            "p2": 0.00149,
+        },
+    },
+    "camera_convention": "OpenCV",
+    "name": "camera_fsp_l",
+}
 
 # Front camera dictionary structure
 fsp_l_struct = {
