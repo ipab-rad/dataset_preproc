@@ -149,28 +149,22 @@ class TransformTree:
             return Transform(np.eye(4))
 
         path_a = self._path_to_root(target_frame)
-        print(path_a)
         path_b = self._path_to_root(source_frame)
-        print(path_b)
 
         common_frame, index_a, index_b = self._find_common_ancestor(
             path_a, path_b
         )
 
-        print(f'Common frame: {common_frame}')
-
         tf_common_to_a = np.eye(4)
         for i in range(index_a, len(path_a) - 1):
             parent = path_a[i + 1]
             child = path_a[i]
-            print(f'Parent: {parent}, Child: {child}')
             tf_common_to_a = self.transforms[(parent, child)] @ tf_common_to_a
 
         tf_b_to_common = np.eye(4)
         for i in range(len(path_b) - 1, index_b, -1):
             parent = path_b[i - 1]
             child = path_b[i]
-            print(f'Parent: {parent}, Child: {child}')
             tf_b_to_common = self.transforms[(parent, child)] @ tf_b_to_common
 
         return Transform(tf_common_to_a @ tf_b_to_common)

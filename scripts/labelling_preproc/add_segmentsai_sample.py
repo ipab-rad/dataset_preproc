@@ -29,9 +29,6 @@ class SegmentsSampleCreator:
         # Initialise Segments.ai client
         self.client = SegmentS3Client(api_key)
 
-        # Initialise Frame creator
-        self.frame_creator = SensorFrameCreator()
-
     def add(
         self, dataset_name: str, sequence_name: str, local_data_directory: Path
     ):
@@ -81,6 +78,12 @@ class SegmentsSampleCreator:
         cameras_frames = {}
         for cam_id in camera_ids_list:
             cameras_frames[cam_id] = []
+
+        # Use the first sync frame to get information about the cameras
+        cameras_info = sync_key_frames[0]['cameras']
+        self.frame_creator = SensorFrameCreator(
+            local_data_directory, cameras_info
+        )
 
         print('Creating sensor sequences samples...')
         # Iterate over synchronised key frames
@@ -133,7 +136,7 @@ class SegmentsSampleCreator:
             dataset_name, sequence_name, multi_sensor_sequence
         )
 
-        print('Done \U00002714')
+        print('Done ✅')
 
 
 def main():
