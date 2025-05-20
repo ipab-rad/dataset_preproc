@@ -10,7 +10,7 @@ class Intrinsics:
     Pinhole camera intrinsic values
 
     fx, fy: focal length in pixels
-    cx, cy: offsets (in pixels) ofgit stat the principal point
+    cx, cy: offsets (in pixels) of the principal point
             from the top-left corner of the image
     """
 
@@ -65,12 +65,18 @@ class CameraCalibrationParser:
         Parse the camera matrix and return the intrinsic values.
 
         Args:
-            camera_matrix (dict): Dictionary containing the 'data' list with intrinsic values.
+            camera_matrix (dict): Dictionary containing a 'data' key with a flat list
+                of 9 elements representing the 3x3 intrinsic matrix in row-major order:
+                [fx, 0, cx,
+                 0, fy, cy,
+                 0,  0, 1 ], where:
+                 -fx, fy: focal lengths in pixels.
+                 -cx, cy: offsets (in pixels) of the principal point
+                          from the top-left corner of the image.
 
         Returns:
             Intrinsics: Parsed intrinsic parameters.
         """
-        # data = [fx, 0, cx, 0, fy, cy, 0, 0, 1]
         fx = camera_matrix['data'][0]
         cx = camera_matrix['data'][2]
         fy = camera_matrix['data'][4]
@@ -82,12 +88,15 @@ class CameraCalibrationParser:
         Parse the distortion coefficients and return the distortion values.
 
         Args:
-            distortion_coeffs (dict): Dictionary containing the 'data' list with distortion values.
+            distortion_coeffs (dict): Dictionary containing a 'data' key with a
+                list of 5 values in the following order:
+                [k1, k2, p1, p2, k3], where:
+                - k1, k2, k3: radial distortion coefficients.
+                - p1, p2: tangential distortion coefficients.
 
         Returns:
             Distortion: Parsed distortion parameters.
         """
-        # data = [k1, k2, t1, t2, k3]
         k1 = distortion_coeffs['data'][0]
         k2 = distortion_coeffs['data'][1]
         p1 = distortion_coeffs['data'][2]

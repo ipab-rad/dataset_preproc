@@ -24,7 +24,7 @@ from labelling_preproc.common.utils import file_exists
 @dataclass
 class CameraData:
     """
-    Camera data.
+    Holds camera calibration and extrinsic transform data.
     """
 
     calibration_data: CameraCalibrationData
