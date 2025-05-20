@@ -1,22 +1,75 @@
 #!/usr/bin/python3
+import copy
+
+from dataclasses import dataclass
+from pathlib import Path
+
+
+from labelling_preproc.common.camera_calibration_parser import (
+    CameraCalibrationParser,
+    CameraCalibrationData,
+)
+from labelling_preproc.common.transform_tree import TransformTree, Transform
 
 from labelling_preproc.common.sample_formats import (
     image_struct,
     pcd_struct,
-    fsp_l_struct,
-    rsp_l_struct,
-    lspf_r_struct,
-    lspr_l_struct,
-    rspf_l_struct,
-    rspr_r_struct,
+    camera_image_struct,
+    camera_grid_positions,
 )
+
+from labelling_preproc.common.utils import file_exists
+
+
+@dataclass
+class CameraData:
+    """
+    Holds camera calibration and extrinsic transform data.
+    """
+
+    calibration_data: CameraCalibrationData
+    extrinsics: Transform
 
 
 class SensorFrameCreator:
 
-    def __init__(self):
+    def __init__(self, data_directory: Path, cameras_info: list):
+        self.data_directory = data_directory
         # Based on vehicle's TF tree
         self.GROUND_Z_OFFSET_BELOW_LIDAR_M = -1.78
+
+        # Load the transform tree from the transforms.yaml file
+        transforms_file = data_directory / 'extrinsics/transforms.yaml'
+        file_exists(transforms_file)
+        self.transform_tree = TransformTree(str(transforms_file))
+        self.camera_calibration_parser = CameraCalibrationParser()
+        self.cameras_data = {}
+
+        self.LIDAR_FRAME_ID = 'lidar_ouster_top'
+
+        self.get_cameras_calibration(cameras_info)
+
+    def get_cameras_calibration(self, cameras_info: list):
+
+        for camera in cameras_info:
+            camera_name = camera['name']
+            calibration_file = (
+                self.data_directory
+                / 'camera'
+                / camera_name
+                / 'camera_calibration.yaml'
+            )
+            calibration_data = (
+                self.camera_calibration_parser.get_camera_calibration(
+                    str(calibration_file)
+                )
+            )
+            transform = self.transform_tree.get_transform(
+                self.LIDAR_FRAME_ID, calibration_data.frame_id
+            )
+            self.cameras_data[camera_name] = CameraData(
+                calibration_data=calibration_data, extrinsics=transform
+            )
 
     def create_3dpointcloud_frame(
         self, idx, sync_key_frame, assets_meta, ego_poses
@@ -61,48 +114,48 @@ class SensorFrameCreator:
 
         return image_frame
 
-    def get_cam_url(self, camera_name, cameras_list, assets_meta):
-
-        cam_id = None
-        for camera in cameras_list:
-            if camera['name'] == camera_name:
-                cam_id = camera['global_id']
-
-        if cam_id is None:
-            return 'S3 url not found!'
-
-        return assets_meta[str(cam_id)]['s3_url']
-
     def get_images(self, sync_key_frame, assets_meta):
+        images = []
+        for cam in sync_key_frame['cameras']:
+            name = cam['name']
+            global_id = cam['global_id']
+            camera_image = camera_image_struct
+            camera_image['url'] = assets_meta[str(global_id)]['s3_url']
+            camera_image['row'] = camera_grid_positions[name]['row']
+            camera_image['col'] = camera_grid_positions[name]['col']
 
-        # FIXME: Simplify this (see #3)
-        sample = dict()
-        sample["images"] = [
-            fsp_l_struct,
-            rsp_l_struct,
-            lspf_r_struct,
-            lspr_l_struct,
-            rspf_l_struct,
-            rspr_r_struct,
-        ]
+            intrinsics = self.cameras_data[name].calibration_data.intrinsics
+            camera_image['intrinsics']['intrinsic_matrix'] = [
+                [intrinsics.fx, 0.0, intrinsics.cx],
+                [0.0, intrinsics.fy, intrinsics.cy],
+                [0.0, 0.0, 1.0],
+            ]
+            tf = self.cameras_data[name].extrinsics
+            camera_image['extrinsics']['translation'] = {
+                'x': tf.x,
+                'y': tf.y,
+                'z': tf.z,
+            }
 
-        sample["images"][0]["url"] = self.get_cam_url(
-            'fsp_l', sync_key_frame['cameras'], assets_meta
-        )
-        sample["images"][1]["url"] = self.get_cam_url(
-            'rsp_l', sync_key_frame['cameras'], assets_meta
-        )
-        sample["images"][2]["url"] = self.get_cam_url(
-            'lspf_r', sync_key_frame['cameras'], assets_meta
-        )
-        sample["images"][3]["url"] = self.get_cam_url(
-            'lspr_l', sync_key_frame['cameras'], assets_meta
-        )
-        sample["images"][4]["url"] = self.get_cam_url(
-            'rspf_l', sync_key_frame['cameras'], assets_meta
-        )
-        sample["images"][5]["url"] = self.get_cam_url(
-            'rspr_r', sync_key_frame['cameras'], assets_meta
-        )
+            camera_image['extrinsics']['rotation'] = {
+                'qx': tf.qx,
+                'qy': tf.qy,
+                'qz': tf.qz,
+                'qw': tf.qw,
+            }
 
-        return sample["images"]
+            distortion = self.cameras_data[name].calibration_data.distortion
+            camera_image['distortion']['model'] = distortion.model
+            camera_image['distortion']['coefficients'] = {
+                'k1': distortion.k1,
+                'k2': distortion.k2,
+                'k3': distortion.k3,
+                'p1': distortion.p1,
+                'p2': distortion.p2,
+            }
+            camera_image['camera_convention'] = 'OpenCV'
+            camera_image['name'] = "camera_" + name
+
+            images.append(copy.deepcopy(camera_image))
+
+        return images
