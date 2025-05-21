@@ -19,11 +19,16 @@ from labelling_preproc.common.utils import (
 
 class AssetUploader:
 
-    def __init__(self, data_directory, s3_client_name='eidf') -> None:
+    def __init__(
+        self, dataset_name: str, data_directory: Path, s3_client_name='eidf'
+    ) -> None:
         # Initialise s3 client
         self.s3 = self.get_s3_client(s3_client_name)
 
         directory_exists(data_directory)
+
+        # Segments.ai dataset name format: <organization>/<dataset_name>
+        self.dataset_name = dataset_name.split('/')[-1]
 
         self.local_data_directory = data_directory
 
@@ -79,6 +84,30 @@ class AssetUploader:
             asset = self.s3.upload_file(f, label)
             return asset
 
+    def get_s3_key_from_path(self, file_path: Path, dataset_name: str) -> str:
+        """
+        Generate an S3 key from a local file path, ensuring it starts with the dataset name.
+
+        If the file path already contains a directory that starts with the dataset name,
+        the S3 key will start from that point onward. Otherwise, the dataset name will
+        be prepended to the entire path.
+
+        Args:
+            file_path (Path): The full local path to the file.
+            dataset_name (str): The dataset name to use as the S3 key prefix.
+
+        Returns:
+            str: The S3-compatible key (with forward slashes), rooted at the dataset name.
+        """
+        # Look for the first path segment that starts with the dataset name
+        for index, part in enumerate(file_path.parts):
+            if part.startswith(dataset_name):
+                # Build the S3 key from the matched part onward
+                return Path(*file_path.parts[index:]).as_posix()
+
+        # If not found, prepend the dataset name to the full path
+        return f"{dataset_name}/{file_path.as_posix()}"
+
     def run(self):
         """
         Start the uploading process based on a metadata file.
@@ -123,13 +152,14 @@ class AssetUploader:
             lidar_dict['local_file'] = sync_group['lidar']['file']
 
             lidar_file = Path(sync_group['lidar']['file'])
-            lidar_label = f'{rosbag_name}_lidar_top_{lidar_file.name}'
-            lidar_dict['label'] = lidar_label
+            lidar_file_path = self.local_data_directory / lidar_file
 
-            lidar_file_path = (
-                self.local_data_directory / sync_group['lidar']['file']
+            lidar_s3_key = self.get_s3_key_from_path(
+                lidar_file_path, self.dataset_name
             )
-            lidar_asset = self.upload_file(lidar_file_path, lidar_label)
+            lidar_dict['label'] = lidar_s3_key
+
+            lidar_asset = self.upload_file(lidar_file_path, lidar_s3_key)
 
             if lidar_asset is not None:
                 lidar_dict['uuid'] = lidar_asset.uuid
@@ -148,12 +178,14 @@ class AssetUploader:
                 cam_dict = deepcopy(file_dict)
                 cam_dict['local_file'] = cam['file']
 
-                cam_label = f"{rosbag_name}_camera_{cam['name']}_{Path(cam['file']).name}"
-                cam_dict['label'] = cam_label
-
                 cam_file_path = self.local_data_directory / cam['file']
 
-                cam_asset = self.upload_file(cam_file_path, cam_label)
+                cam_s3_key = self.get_s3_key_from_path(
+                    cam_file_path, self.dataset_name
+                )
+                cam_dict['label'] = cam_s3_key
+
+                cam_asset = self.upload_file(cam_file_path, cam_s3_key)
                 if cam_asset is not None:
                     cam_dict['uuid'] = cam_asset.uuid
                     cam_dict['s3_url'] = cam_asset.url
@@ -176,22 +208,23 @@ class AssetUploader:
 
 def main():
     # Ensure command-line argument is provided
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print(
-            'ERROR: Please provide the local data directory as an argument.',
+            'ERROR: Please provide the local data directory as an argument.'
+            ' upload_data <dataset_name> <sequence_directory> <s3_org> (optional)',
             file=sys.stderr,
         )
         sys.exit(1)
 
-    data_directory = Path(sys.argv[1])
+    dataset_name = sys.argv[1]
+    data_directory = Path(sys.argv[2])
 
     # Check if user set an optional arg
     s3_org = 'eidf'
-    if len(sys.argv) == 3:
-        s3_org = sys.argv[2]
-
+    if len(sys.argv) == 4:
+        s3_org = sys.argv[3]
     try:
-        uploader = AssetUploader(data_directory, s3_org)
+        uploader = AssetUploader(dataset_name, data_directory, s3_org)
         uploader.run()
 
     except Exception as e:
