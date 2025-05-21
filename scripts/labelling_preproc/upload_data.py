@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import sys
 import json
 import yaml
@@ -27,7 +28,7 @@ class AssetUploader:
 
         directory_exists(data_directory)
 
-        # Segments.ai dataset name format: <organization>/<dataset_name>
+        # Avoid using the organisation name in the dataset name
         self.dataset_name = dataset_name.split('/')[-1]
 
         self.local_data_directory = data_directory
@@ -207,22 +208,33 @@ class AssetUploader:
 
 
 def main():
-    # Ensure command-line argument is provided
-    if len(sys.argv) < 3:
-        print(
-            'ERROR: Please provide the local data directory as an argument.'
-            ' upload_data <dataset_name> <sequence_directory> <s3_org> (optional)',
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'dataset_name',
+        type=str,
+        help='Dataset name including Segments.ai organisation account name',
+    )
 
-    dataset_name = sys.argv[1]
-    data_directory = Path(sys.argv[2])
+    parser.add_argument(
+        'data_directory',
+        type=str,
+        help='The directory containing the exportation data to upload',
+    )
 
-    # Check if user set an optional arg
-    s3_org = 'eidf'
-    if len(sys.argv) == 4:
-        s3_org = sys.argv[3]
+    parser.add_argument(
+        's3_org',
+        type=str,
+        default='eidf',
+        choices=['eidf', 'segmentsai'],
+        nargs='?',
+        help='Wether to upload to EIDF or Segments.ai AWS S3 (Optional, default: eidf)',
+    )
+
+    args = parser.parse_args()
+    dataset_name = args.dataset_name
+    data_directory = args.data_directory
+    s3_org = args.s3_org
+
     try:
         uploader = AssetUploader(dataset_name, data_directory, s3_org)
         uploader.run()
