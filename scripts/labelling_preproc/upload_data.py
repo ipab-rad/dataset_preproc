@@ -227,7 +227,7 @@ def main():
         default='eidf',
         choices=['eidf', 'segmentsai'],
         nargs='?',
-        help='Wether to upload to EIDF or Segments.ai AWS S3 (Optional, default: eidf)',
+        help='Whether to upload to EIDF or Segments.ai AWS S3 (Optional, default: eidf)',
     )
 
     args = parser.parse_args()
