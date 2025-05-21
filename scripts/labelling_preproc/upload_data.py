@@ -218,7 +218,7 @@ def main():
     parser.add_argument(
         'data_directory',
         type=str,
-        help='The directory containing the exportation data to upload',
+        help='The directory containing the exported data to upload',
     )
 
     parser.add_argument(
