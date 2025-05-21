@@ -28,7 +28,7 @@ class AssetUploader:
 
         directory_exists(data_directory)
 
-        # Avoid using the organisation name in the dataset name
+        # Skip first part of dataset string to remove the non-informative organisation name
         self.dataset_name = dataset_name.split('/')[-1]
 
         self.local_data_directory = data_directory
